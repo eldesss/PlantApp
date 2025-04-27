@@ -1,4 +1,4 @@
-export default function PlantCard({ name, type, emoji, imageUrl }) {
+export default function PlantCard({ name, type, imageUrl }) {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <div className="aspect-square relative">
@@ -9,9 +9,7 @@ export default function PlantCard({ name, type, emoji, imageUrl }) {
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-green-50">
-            <span className="text-4xl">{emoji}</span>
-          </div>
+          <div className="w-full h-full flex items-center justify-center bg-green-50"></div>
         )}
       </div>
       <div className="p-4">
