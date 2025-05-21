@@ -1,11 +1,38 @@
 'use client';
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 export default function PlantasPage() {
   const [files, setFiles] = useState([]);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [savedPlants, setSavedPlants] = useState([]);
+  const router = useRouter();
+
+  useEffect(() => {
+    const user = sessionStorage.getItem('user');
+    if (!user) {
+      router.push('/login');
+    }
+  }, [router]);
+
+  // Cargar plantas guardadas al iniciar
+  useEffect(() => {
+    const saved = localStorage.getItem('savedPlants');
+    if (saved) {
+      setSavedPlants(JSON.parse(saved));
+    }
+  }, []);
 
   const handleChange = (e) => {
     const selectedFiles = Array.from(e.target.files).slice(0, 3);
@@ -18,6 +45,56 @@ export default function PlantasPage() {
     setFiles((prev) => prev.filter((_, i) => i !== idx));
   };
 
+  const handleSavePlant = async (plant, idx) => {
+    // Guardar todas las imágenes subidas en base64
+    const imageUrl = await Promise.all(files.map(fileToBase64)); // ahora es un array
+    console.log('Imágenes convertidas a base64:', imageUrl.length);
+    // Obtener userId del usuario autenticado
+    const user = sessionStorage.getItem('user');
+    let userId = null;
+    if (user) {
+      try {
+        userId = JSON.parse(user).id;
+      } catch (error) {
+        console.error('Error al parsear usuario:', error);
+      }
+    }
+    if (!userId) {
+      setError('No se ha encontrado el usuario autenticado.');
+      return;
+    }
+    // Limpiar apiData para que sea serializable
+    const apiData = JSON.parse(JSON.stringify(plant));
+    // LOG: Ver qué se envía al backend
+    console.log('Enviando a la BD:', {
+      userId,
+      apiData,
+      imageUrl
+    });
+    try {
+      // Guardar en la base de datos
+      const res = await fetch('/api/plants', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          apiData,
+          imageUrl
+        })
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Error al guardar la planta');
+      }
+      const savedPlant = await res.json();
+      console.log('Planta guardada:', savedPlant);
+      router.push('/');
+    } catch (error) {
+      console.error('Error al guardar:', error);
+      setError(error.message);
+    }
+  };
+
   const handleIdentify = async () => {
     if (files.length === 0) return;
     setLoading(true);
@@ -27,8 +104,6 @@ export default function PlantasPage() {
       const formData = new FormData();
       files.forEach((file) => formData.append('images', file));
       files.forEach(() => formData.append('organs', 'auto'));
-      // No agregar lang ni type al FormData
-      // Llamada a la API local (Next.js API Route)
       const res = await fetch('/api/plantnet', {
         method: 'POST',
         body: formData,
@@ -46,28 +121,35 @@ export default function PlantasPage() {
     }
   };
 
-  // Función para mostrar los 3 mejores resultados
   function renderResults() {
     if (!result || !result.results || result.results.length === 0) return null;
-    // Ordenar por score descendente y tomar los 3 primeros
     const topResults = [...result.results]
       .sort((a, b) => b.score - a.score)
       .slice(0, 3);
+    // Si hay 3 resultados, poner el de mayor score en el centro
+    let orderedResults = topResults;
+    if (topResults.length === 3) {
+      orderedResults = [topResults[1], topResults[0], topResults[2]];
+    }
     return (
-      <div className="mt-6 w-full max-w-2xl grid grid-cols-1 md:grid-cols-3 gap-4 mx-auto">
-        {topResults.map((item, idx) => {
+      <div className="mt-6 w-full max-w-2xl grid grid-cols-1 md:grid-cols-3 gap-8 mx-auto">
+        {orderedResults.map((item, idx) => {
           const species = item.species;
           const score = (item.score * 100).toFixed(1);
           const imageUrl = item.images?.[0]?.url || null;
           const scientificName = species.scientificNameWithoutAuthor || species.scientificName;
+          const family = species.family?.scientificName || 'No especificada';
           return (
-            <div key={idx} className="bg-white rounded-lg shadow p-4 flex flex-col items-center">
-              {imageUrl && (
-                <img src={imageUrl} alt={scientificName} className="w-32 h-32 object-cover rounded mb-2 border" />
-              )}
-              <h3 className="text-lg font-bold text-green-800 mb-1 text-center">{scientificName}</h3>
-              <p className="text-gray-700 text-sm mb-1 text-center">Score: <span className="font-semibold">{score}%</span></p>
-              <p className="text-gray-500 text-xs text-center italic">Familia: {species.family?.scientificName || '-'}</p>
+            <div key={idx} className="bg-[#f5f7f9] border border-[#d1d5db] rounded-xl shadow p-6 flex flex-col items-center transition-colors duration-200 hover:bg-[#e9ecef]">
+              <h3 className="text-xl font-bold text-green-800 mb-2 text-center">{scientificName}</h3>
+              <p className="text-gray-800 text-lg mb-1 text-center">Score: <span className="font-bold">{score}%</span></p>
+              <p className="text-gray-500 text-base text-center italic">Familia: {family}</p>
+              <button
+                onClick={() => handleSavePlant({ scientificName, family, score }, idx)}
+                className="mt-4 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 text-base font-semibold"
+              >
+                Guardar
+              </button>
             </div>
           );
         })}
@@ -77,7 +159,7 @@ export default function PlantasPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-green-50">
-      <h1 className="text-3xl font-bold text-green-800 mb-6">Página de Plantas</h1>
+      <h1 className="text-3xl font-bold text-green-800 mb-6">Escanear Plantas</h1>
       <label className="cursor-pointer bg-green-700 text-white px-6 py-2 rounded shadow hover:bg-green-800 mb-4 font-semibold">
         Adjuntar imágenes
         <input
@@ -88,27 +170,20 @@ export default function PlantasPage() {
           className="hidden"
         />
       </label>
-      <div className="w-full max-w-md space-y-4 mb-4">
+      <div className="w-full max-w-2xl flex justify-center gap-12 mb-8">
         {files.map((file, idx) => (
-          <div key={idx} className="flex items-center space-x-4">
-            <span className="truncate flex-1 text-gray-900">{file.name}</span>
-            <button
-              type="button"
-              onClick={() => handleRemove(idx)}
-              className="text-red-600 font-bold text-lg px-2 hover:text-red-800 focus:outline-none"
-              title="Quitar archivo"
-            >
-              ×
-            </button>
-            <div className="w-32 h-2 bg-gray-200 rounded">
-              <div className="h-2 bg-green-400 rounded" style={{ width: '100%' }}></div>
-            </div>
+          <div key={idx} className="group cursor-pointer" onClick={() => handleRemove(idx)} title="Quitar imagen">
+            <img
+              src={URL.createObjectURL(file)}
+              alt={file.name}
+              className="w-32 h-32 object-cover rounded border border-gray-300 shadow-md group-hover:opacity-70 transition-opacity duration-150"
+            />
           </div>
         ))}
       </div>
       <button
         onClick={handleIdentify}
-        disabled={files.length === 0 || loading}
+        disabled={files.length < 3 || loading}
         className="bg-green-600 text-white px-6 py-2 rounded shadow hover:bg-green-700 disabled:opacity-50"
       >
         {loading ? 'Identificando...' : 'Identificar Planta'}

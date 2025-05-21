@@ -1,0 +1,25 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id       String   @id @default(cuid())
+  email    String   @unique
+  username String   @unique
+  password String
+  plants   Plant[]
+}
+
+model Plant {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  apiData   Json
+  imageUrl  Json?  
+  createdAt DateTime @default(now())
+}
