@@ -15,6 +15,7 @@ model User {
   emailVerified     Boolean   @default(false)
   verificationToken String?   @unique
   plants            Plant[]
+  gardens           Garden[]
 }
 
 model Plant {
@@ -24,4 +25,12 @@ model Plant {
   apiData   Json
   imageUrl  Json?  
   createdAt DateTime @default(now())
+}
+
+model Garden {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  image     String   // base64
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }

@@ -3,6 +3,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Método no permitido' });
   }
 
+  // Log para depuración
+  console.log('Body recibido:', req.body);
+
   // Parsear el body si viene como string o como objeto
   let nombres;
   try {
@@ -16,13 +19,14 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Body inválido' });
   }
 
-  const HUGGING_FACE_API = "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";
+  const HUGGING_FACE_API = process.env.HUGGING_FACE_API;
+  const HUGGINGFACE_API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large";
   try {
     if (!nombres || !Array.isArray(nombres) || nombres.length === 0) {
       return res.status(400).json({ error: 'No se recibieron nombres de plantas' });
     }
     const prompt = `A beautiful garden with the following plants: ${nombres.join(', ')}.`;
-    const response = await fetch("https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1", {
+    const response = await fetch(HUGGINGFACE_API_URL, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${HUGGING_FACE_API}`,

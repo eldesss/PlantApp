@@ -35,6 +35,7 @@ export default function MiJardin() {
               body: JSON.stringify({ nombres })
             });
             const data = await res.json();
+            console.log('Respuesta del backend:', data);
             if (data.image) {
               setImgJardin(data.image);
             } else {
