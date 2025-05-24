@@ -28,10 +28,9 @@ export default function PlantCard({ plant, onClick }) {
         )}
       </div>
       <div className="p-4">
-        <h3 className="font-semibold text-lg text-gray-800 mb-1">{scientificName}</h3>
-        <div className="mt-2 text-sm text-gray-500">
+        <h3 className="font-semibold text-lg text-gray-800 mb-1 font-display">{scientificName}</h3>
+        <div className="mt-2 text-sm text-gray-500 font-sans">
           <p>Familia: {family || 'No especificada'}</p>
-          <p>Precisión: {score}%</p>
         </div>
       </div>
     </div>

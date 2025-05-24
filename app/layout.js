@@ -1,7 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import NavBar from "./components/NavBar";
 import { UserProvider } from "./context/UserContext";
+import LayoutClient from "./components/LayoutClient";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,17 +23,11 @@ export default function RootLayout({ children }) {
     <html lang="es">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>
         <UserProvider>
-          {/* Barra de navegación */}
-          <NavBar />
-          <main className="flex-grow">
-            {children}
-          </main>
-          {/* Footer */}
-          <footer className="bg-green-900 text-white p-4 mt-auto">
-            <div className="container mx-auto text-center">
-              <p>© 2024 Plant App - Todos los derechos reservados</p>
-            </div>
-          </footer>
+          <LayoutClient>
+            <main className="flex-grow">
+              {children}
+            </main>
+          </LayoutClient>
         </UserProvider>
       </body>
     </html>

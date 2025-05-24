@@ -21,8 +21,9 @@ export default function NavBar() {
           )}
         </div>
         <div className="space-x-4 flex items-center">
-          <a href="/" className="hover:text-green-200">Inicio</a>
-          <a href="/plantas" className="hover:text-green-200">Plantas</a>
+          <a href="/" className="hover:text-green-200">Mis plantas</a>
+          <a href="/jardin" className="hover:text-green-200">Jardín</a>
+          <a href="/plantas" className="hover:text-green-200">Identificar</a>
           <button
             className="ml-4 bg-green-900 hover:bg-green-700 text-white px-3 py-1 rounded"
             onClick={handleLogout}

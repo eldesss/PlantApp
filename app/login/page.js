@@ -9,12 +9,14 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const router = useRouter();
   const { login } = useUser();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     if (isRegister) {
       // Registro
       if (!username || !email || !password) {
@@ -36,7 +38,7 @@ export default function LoginPage() {
       setUsername('');
       setEmail('');
       setPassword('');
-      setError('Usuario registrado correctamente. Ahora inicia sesión.');
+      setSuccess('Usuario registrado correctamente.');
     } else {
       // Login
       if ((!username && !email) || !password) {
@@ -89,7 +91,12 @@ export default function LoginPage() {
             onChange={e => setPassword(e.target.value)}
             className="w-full px-3 py-2 border rounded text-gray-800 placeholder-gray-600 bg-gray-100"
           />
-          {error && <div className="text-red-600 text-sm">{error}</div>}
+          {error && (
+            <div className="text-red-600 text-sm">{error}</div>
+          )}
+          {success && (
+            <div className="text-green-600 text-sm">{success}</div>
+          )}
           <button
             type="submit"
             className="w-full bg-green-700 text-white py-2 rounded hover:bg-green-800"
@@ -100,7 +107,7 @@ export default function LoginPage() {
         <div className="mt-4 text-center">
           <button
             className="text-green-700 hover:underline"
-            onClick={() => { setIsRegister(!isRegister); setError(''); }}
+            onClick={() => { setIsRegister(!isRegister); setError(''); setSuccess(''); }}
           >
             {isRegister ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Regístrate'}
           </button>

@@ -77,26 +77,30 @@ function PlantModal({ plant, onClose }) {
             {/* Flecha izquierda */}
             {imagesToShowFinal.length > 1 && (
               <button
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-green-100 hover:bg-green-200 text-green-800 rounded-full p-2 shadow"
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-green-100 hover:bg-green-200 text-green-800 rounded-full w-10 h-10 flex items-center justify-center shadow transition-colors duration-200"
                 onClick={e => { e.stopPropagation(); setSelectedImg((selectedImg - 1 + imagesToShowFinal.length) % imagesToShowFinal.length); }}
                 aria-label="Anterior"
               >
-                &#8592;
+                <span className="text-xl leading-none">&#8592;</span>
               </button>
             )}
             <img
               src={imagesToShowFinal[selectedImg]}
               alt={`Imagen ${selectedImg + 1}`}
-              className="max-w-full max-h-full object-contain mx-auto"
+              className={`w-full h-full object-cover mx-auto transition-opacity duration-500 ${show ? 'opacity-100' : 'opacity-0'}`}
+              style={{ borderRadius: 'inherit' }}
+              onLoad={() => setShow(true)}
+              onTransitionEnd={() => setShow(true)}
+              onAnimationEnd={() => setShow(true)}
             />
             {/* Flecha derecha */}
             {imagesToShowFinal.length > 1 && (
               <button
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-green-100 hover:bg-green-200 text-green-800 rounded-full p-2 shadow"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-green-100 hover:bg-green-200 text-green-800 rounded-full w-10 h-10 flex items-center justify-center shadow transition-colors duration-200"
                 onClick={e => { e.stopPropagation(); setSelectedImg((selectedImg + 1) % imagesToShowFinal.length); }}
                 aria-label="Siguiente"
               >
-                &#8594;
+                <span className="text-xl leading-none">&#8594;</span>
               </button>
             )}
           </div>
@@ -116,26 +120,27 @@ function PlantModal({ plant, onClose }) {
           </div>
         )}
         <div className="space-y-3 text-lg">
-          <div><span className="font-semibold text-gray-800">Nombre científico:</span> <span className="text-gray-700">{plant.scientificName}</span></div>
+          <div>
+            <span className="font-semibold text-gray-800 font-display text-2xl block mb-1">{plant.scientificName}</span>
+          </div>
           {plant.author && (
-            <div><span className="font-semibold text-gray-800">Autor:</span> <span className="text-gray-700">{plant.author}</span></div>
+            <div><span className="font-semibold text-gray-800">Autor:</span> <span className="text-gray-700 font-sans">{plant.author}</span></div>
           )}
           {plant.genus && (
-            <div><span className="font-semibold text-gray-800">Género:</span> <span className="text-gray-700">{plant.genus}</span></div>
+            <div><span className="font-semibold text-gray-800">Género:</span> <span className="text-gray-700 font-sans">{plant.genus}</span></div>
           )}
-          <div><span className="font-semibold text-gray-800">Familia:</span> <span className="text-gray-700">{plant.family || 'No especificada'}</span></div>
-          <div><span className="font-semibold text-gray-800">Precisión:</span> <span className="text-gray-700">{plant.score}%</span></div>
+          <div><span className="font-semibold text-gray-800">Familia:</span> <span className="text-gray-700 font-sans">{plant.family || 'No especificada'}</span></div>
           {commonNames.length > 0 && (
-            <div><span className="font-semibold text-gray-800">Nombres comunes:</span> <span className="text-gray-700">{commonNames.join(', ')}</span></div>
+            <div><span className="font-semibold text-gray-800">Nombres comunes:</span> <span className="text-gray-700 font-sans">{commonNames.join(', ')}</span></div>
           )}
           {synonyms.length > 0 && (
-            <div><span className="font-semibold text-gray-800">Sinónimos:</span> <span className="text-gray-700">{synonyms.join(', ')}</span></div>
+            <div><span className="font-semibold text-gray-800">Sinónimos:</span> <span className="text-gray-700 font-sans">{synonyms.join(', ')}</span></div>
           )}
           {plant.vernacularNames && (
-            <div><span className="font-semibold text-gray-800">Nombres en otros idiomas:</span> <span className="text-gray-700">{Array.isArray(plant.vernacularNames) ? plant.vernacularNames.join(', ') : plant.vernacularNames}</span></div>
+            <div><span className="font-semibold text-gray-800">Nombres en otros idiomas:</span> <span className="text-gray-700 font-sans">{Array.isArray(plant.vernacularNames) ? plant.vernacularNames.join(', ') : plant.vernacularNames}</span></div>
           )}
           {plant.description && (
-            <div><span className="font-semibold text-gray-800">Descripción:</span> <span className="text-gray-700">{plant.description}</span></div>
+            <div><span className="font-semibold text-gray-800">Descripción:</span> <span className="text-gray-700 font-sans">{plant.description}</span></div>
           )}
         </div>
       </div>
@@ -181,20 +186,20 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100">
       <main className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-green-800 mb-6 text-center">Biblioteca de Plantas</h1>
+        <h1 className="text-4xl font-bold text-green-800 mb-6 text-center font-display">Biblioteca de Plantas</h1>
         <div className="flex justify-center mb-8">
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por nombre científico o familia..."
-            className="w-full max-w-md px-4 py-2 border border-green-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-200 text-lg bg-white text-gray-900"
+            className="w-full max-w-md px-4 py-2 border border-green-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-200 text-lg bg-white text-gray-900 font-sans"
           />
         </div>
         {loading ? (
-          <div className="text-center text-gray-600">Cargando plantas...</div>
+          <div className="text-center text-gray-600 font-sans">Cargando plantas...</div>
         ) : filteredPlants.length === 0 ? (
-          <div className="text-center text-gray-600">
+          <div className="text-center text-gray-600 font-sans">
             <p className="text-lg">No hay plantas guardadas aún.</p>
             <p className="mt-2">Ve a la página de <a href="/plantas" className="text-green-600 hover:text-green-800 underline">identificación</a> para agregar plantas a tu biblioteca.</p>
           </div>

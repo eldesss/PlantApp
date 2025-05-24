@@ -10,8 +10,7 @@ export async function identifyPlant(imageUrl) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        images: [imageUrl],
-        organs: ['flower']
+        images: [imageUrl]
       })
     });
 
