@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { FaCheckCircle } from 'react-icons/fa';
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -17,6 +18,7 @@ export default function PlantasPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [savedPlants, setSavedPlants] = useState([]);
+  const [checkedPlants, setCheckedPlants] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -33,6 +35,19 @@ export default function PlantasPage() {
       setSavedPlants(JSON.parse(saved));
     }
   }, []);
+
+  // Cargar plantas seleccionadas al iniciar
+  useEffect(() => {
+    const checked = localStorage.getItem('checkedPlants');
+    if (checked) {
+      setCheckedPlants(JSON.parse(checked));
+    }
+  }, []);
+
+  // Guardar cambios en localStorage
+  useEffect(() => {
+    localStorage.setItem('checkedPlants', JSON.stringify(checkedPlants));
+  }, [checkedPlants]);
 
   const handleChange = (e) => {
     const selectedFiles = Array.from(e.target.files).slice(0, 3);
@@ -157,6 +172,42 @@ export default function PlantasPage() {
     );
   }
 
+  // Renderizar biblioteca de plantas guardadas
+  function renderSavedPlants() {
+    if (!savedPlants || savedPlants.length === 0) return null;
+    return (
+      <div className="mt-10 w-full max-w-5xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mx-auto">
+        {savedPlants.map((plant, idx) => {
+          const isChecked = checkedPlants.includes(plant.apiData.scientificName);
+          return (
+            <div key={idx} className="relative bg-white border border-gray-200 rounded-xl shadow p-4 flex flex-col items-center">
+              <button
+                className={`absolute top-2 right-2 text-2xl focus:outline-none ${isChecked ? 'text-green-600' : 'text-gray-300'}`}
+                title={isChecked ? 'Quitar de selección' : 'Seleccionar para el jardín'}
+                onClick={() => {
+                  setCheckedPlants(prev =>
+                    isChecked
+                      ? prev.filter(name => name !== plant.apiData.scientificName)
+                      : [...prev, plant.apiData.scientificName]
+                  );
+                }}
+              >
+                <FaCheckCircle />
+              </button>
+              <img
+                src={Array.isArray(plant.imageUrl) ? plant.imageUrl[0] : plant.imageUrl}
+                alt={plant.apiData.scientificName}
+                className="w-full h-40 object-cover rounded mb-3"
+              />
+              <h3 className="text-lg font-bold text-green-800 mb-1 text-center">{plant.apiData.scientificName}</h3>
+              <p className="text-gray-600 text-sm text-center">Familia: {plant.apiData.family}</p>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-green-50">
       <h1 className="text-3xl font-bold text-green-800 mb-6">Escanear Plantas</h1>
@@ -181,17 +232,20 @@ export default function PlantasPage() {
           </div>
         ))}
       </div>
-      <button
-        onClick={handleIdentify}
-        disabled={files.length < 3 || loading}
-        className="bg-green-600 text-white px-6 py-2 rounded shadow hover:bg-green-700 disabled:opacity-50"
-      >
-        {loading ? 'Identificando...' : 'Identificar Planta'}
-      </button>
+      {files.length > 0 && (
+        <button
+          onClick={handleIdentify}
+          disabled={files.length < 3 || loading}
+          className="bg-green-600 text-white px-6 py-2 rounded shadow hover:bg-green-700 disabled:opacity-50"
+        >
+          {loading ? 'Identificando...' : 'Identificar Planta'}
+        </button>
+      )}
       {error && (
         <div className="mt-4 text-red-600 font-semibold">{error}</div>
       )}
       {result && renderResults()}
+      {renderSavedPlants()}
     </div>
   );
 }

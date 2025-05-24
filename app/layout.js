@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Plant App - Tu Jardín Digital",
-  description: "Aprende sobre plantas y cuida tu jardín",
+  title: "MyGiarden",
+  description: "Crea tu jardín virtual",
 };
 
 export default function RootLayout({ children }) {

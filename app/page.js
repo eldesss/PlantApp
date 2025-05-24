@@ -2,10 +2,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import PlantCard from '@/components/plants/PlantCard';
+import { FaCheckCircle } from 'react-icons/fa';
+import { FaTrash } from 'react-icons/fa';
 
-function PlantModal({ plant, onClose }) {
+function PlantModal({ plant, onClose, onDelete }) {
   const [show, setShow] = useState(false);
   const [selectedImg, setSelectedImg] = useState(0);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     setShow(true);
@@ -49,6 +52,15 @@ function PlantModal({ plant, onClose }) {
   // Usar userImages, y si no hay, usar imageUrl
   const imagesToShowFinal = userImages.length > 0 ? userImages : imagesToShow;
 
+  // Lógica para el color del porcentaje
+  let scoreColor = 'text-green-700';
+  if (plant.score) {
+    const scoreNum = parseFloat(plant.score);
+    if (scoreNum < 40) scoreColor = 'text-red-600';
+    else if (scoreNum < 70) scoreColor = 'text-yellow-600';
+    else scoreColor = 'text-green-700';
+  }
+
   if (!plant) return null;
 
   // Nombres comunes y sinónimos pueden ser array o string
@@ -57,11 +69,16 @@ function PlantModal({ plant, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 bg-transparent flex items-center justify-center z-50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center"
       onClick={onClose}
     >
+      {/* Fondo con blur y transición de opacidad */}
       <div
-        className={`bg-green-50 rounded-lg shadow-2xl border border-green-200 max-w-2xl w-full p-10 relative transition-all duration-300 ${show ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+        className={`absolute inset-0 bg-white/60 backdrop-blur-sm transition-opacity duration-300 ${show ? 'opacity-100' : 'opacity-0'}`}
+        aria-hidden="true"
+      />
+      <div
+        className={`relative bg-green-50 rounded-lg shadow-2xl border border-green-200 max-w-2xl w-full p-10 transition-all duration-300 ${show ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
         onClick={e => e.stopPropagation()}
       >
         <button
@@ -119,7 +136,7 @@ function PlantModal({ plant, onClose }) {
             ))}
           </div>
         )}
-        <div className="space-y-3 text-lg">
+        <div className="space-y-3 text-lg pb-16">
           <div>
             <span className="font-semibold text-gray-800 font-display text-2xl block mb-1">{plant.scientificName}</span>
           </div>
@@ -142,7 +159,47 @@ function PlantModal({ plant, onClose }) {
           {plant.description && (
             <div><span className="font-semibold text-gray-800">Descripción:</span> <span className="text-gray-700 font-sans">{plant.description}</span></div>
           )}
+          {plant.score && <div><span className="font-semibold text-gray-800">Identificación:</span> <span className={`${scoreColor} font-bold`}>{plant.score}%</span></div>}
+          {plant.createdAt && <div><span className="font-semibold text-gray-800">Añadido:</span> <span className="text-gray-700 font-sans">{new Date(plant.createdAt).toLocaleDateString()}</span></div>}
         </div>
+        <div className="absolute right-8 bottom-8">
+          <button
+            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow"
+            title="Eliminar planta"
+            onClick={e => {
+              e.stopPropagation();
+              setShowDeleteConfirm(true);
+            }}
+          >
+            <FaTrash /> Eliminar planta
+          </button>
+        </div>
+        {/* Confirmación personalizada para eliminar */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30">
+            <div className="bg-white rounded-lg shadow-lg p-6 max-w-xs w-full flex flex-col items-center">
+              <p className="mb-4 text-lg text-gray-800 text-center">¿Seguro que quieres eliminar esta planta?</p>
+              <div className="flex gap-4">
+                <button
+                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                  onClick={() => setShowDeleteConfirm(false)}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                  onClick={async () => {
+                    setShowDeleteConfirm(false);
+                    await onDelete && onDelete();
+                    onClose();
+                  }}
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -154,6 +211,7 @@ export default function Home() {
   const [selectedPlant, setSelectedPlant] = useState(null);
   const [search, setSearch] = useState('');
   const router = useRouter();
+  const [checkedPlants, setCheckedPlants] = useState([]);
 
   useEffect(() => {
     const user = sessionStorage.getItem('user');
@@ -172,6 +230,17 @@ export default function Home() {
       })
       .catch(() => setLoading(false));
   }, [router]);
+
+  useEffect(() => {
+    const checked = localStorage.getItem('checkedPlants');
+    if (checked) {
+      setCheckedPlants(JSON.parse(checked));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('checkedPlants', JSON.stringify(checkedPlants));
+  }, [checkedPlants]);
 
   // Filtrar plantas por búsqueda
   const filteredPlants = plants.filter(plant => {
@@ -205,31 +274,83 @@ export default function Home() {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 max-w-[2000px] mx-auto">
-            {filteredPlants.map((plant, index) => (
-              <PlantCard
-                key={plant.id || index}
-                plant={{
-                  scientificName: plant.apiData.scientificName || plant.apiData.scientificNameWithoutAuthor || '',
-                  family: plant.apiData.family || '',
-                  imageUrl: Array.isArray(plant.imageUrl) ? plant.imageUrl : (
-                    typeof plant.imageUrl === 'string' ? (() => { try { return JSON.parse(plant.imageUrl); } catch { return []; } })() : []
-                  ),
-                  score: plant.apiData.score || ''
-                }}
-                onClick={() => setSelectedPlant({
-                  scientificName: plant.apiData.scientificName || plant.apiData.scientificNameWithoutAuthor || '',
-                  family: plant.apiData.family || '',
-                  imageUrl: Array.isArray(plant.imageUrl) ? plant.imageUrl : (
-                    typeof plant.imageUrl === 'string' ? (() => { try { return JSON.parse(plant.imageUrl); } catch { return []; } })() : []
-                  ),
-                  score: plant.apiData.score || '',
-                  ...plant.apiData // por si hay más datos
-                })}
-              />
-            ))}
+            {filteredPlants.map((plant, index) => {
+              const sciName = plant.apiData.scientificName || plant.apiData.scientificNameWithoutAuthor || '';
+              const family = plant.apiData.family || '';
+              const imageUrl = Array.isArray(plant.imageUrl) ? plant.imageUrl : (
+                typeof plant.imageUrl === 'string' ? (() => { try { return JSON.parse(plant.imageUrl); } catch { return []; } })() : []
+              );
+              const isChecked = checkedPlants.includes(sciName);
+              const score = plant.apiData.score ? (typeof plant.apiData.score === 'number' ? (plant.apiData.score * 100).toFixed(1) : plant.apiData.score) : null;
+              const createdAt = plant.createdAt ? new Date(plant.createdAt) : null;
+              return (
+                <div
+                  key={plant.id || index}
+                  className="relative bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-200 hover:scale-105 hover:shadow-xl cursor-pointer"
+                  onClick={e => {
+                    if (e.target.closest('button')) return;
+                    setSelectedPlant({
+                      scientificName: sciName,
+                      family,
+                      imageUrl,
+                      score,
+                      createdAt,
+                      ...plant.apiData,
+                      id: plant.id
+                    });
+                  }}
+                >
+                  <button
+                    className={`absolute top-2 right-2 text-2xl focus:outline-none z-10 ${isChecked ? 'text-green-600' : 'text-gray-300'}`}
+                    title={isChecked ? 'Quitar de selección' : 'Seleccionar para el jardín'}
+                    onClick={e => {
+                      e.stopPropagation();
+                      setCheckedPlants(prev =>
+                        isChecked
+                          ? prev.filter(name => name !== sciName)
+                          : [...prev, sciName]
+                      );
+                    }}
+                  >
+                    <FaCheckCircle />
+                  </button>
+                  <div className="aspect-square relative">
+                    {imageUrl && imageUrl.length > 0 ? (
+                      <img
+                        src={imageUrl[0]}
+                        alt={sciName}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-green-50">
+                        <span className="text-gray-400">Sin imagen</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-semibold text-lg text-gray-800 mb-1 font-display">{sciName}</h3>
+                    <div className="mt-2 text-sm text-gray-500 font-sans">
+                      <p>Familia: {family || 'No especificada'}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
-        <PlantModal plant={selectedPlant} onClose={() => setSelectedPlant(null)} />
+        {selectedPlant && (
+          <PlantModal
+            plant={selectedPlant}
+            onClose={() => setSelectedPlant(null)}
+            onDelete={async () => {
+              if (!selectedPlant?.id) return;
+              const res = await fetch(`/api/plants/${selectedPlant.id}`, { method: 'DELETE' });
+              if (res.ok) {
+                setPlants(prev => prev.filter(p => p.id !== selectedPlant.id));
+              }
+            }}
+          />
+        )}
       </main>
     </div>
   );

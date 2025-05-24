@@ -7,12 +7,15 @@ export default async function handler(req, res) {
   console.log('Body recibido:', req.body);
 
   // Parsear el body si viene como string o como objeto
-  let nombres;
+  let nombres, estilo;
   try {
     if (typeof req.body === 'string') {
-      nombres = JSON.parse(req.body).nombres;
+      const body = JSON.parse(req.body);
+      nombres = body.nombres;
+      estilo = body.estilo;
     } else {
       nombres = req.body.nombres;
+      estilo = req.body.estilo;
     }
   } catch (e) {
     console.error('Body inválido:', e);
@@ -25,7 +28,7 @@ export default async function handler(req, res) {
     if (!nombres || !Array.isArray(nombres) || nombres.length === 0) {
       return res.status(400).json({ error: 'No se recibieron nombres de plantas' });
     }
-    const prompt = `A beautiful garden with the following plants: ${nombres.join(', ')}.`;
+    const prompt = `Un jardín con el estilo: ${estilo ? estilo : ''} con las siguientes plantas: ${nombres.join(', ')}.`;
     const response = await fetch(HUGGINGFACE_API_URL, {
       method: "POST",
       headers: {
@@ -35,13 +38,26 @@ export default async function handler(req, res) {
       body: JSON.stringify({ inputs: prompt })
     });
     if (!response.ok) {
-      const error = await response.text();
-      console.error('Error Hugging Face:', error);
-      return res.status(500).json({ error: error || 'Error desconocido en Hugging Face' });
+      const contentType = response.headers.get('content-type') || '';
+      const errorText = await response.text();
+      // Si la respuesta es HTML, es un error de Hugging Face
+      if (contentType.includes('text/html')) {
+        console.error('Error Hugging Face (HTML):', errorText);
+        return res.status(503).json({ error: 'Hugging Face no está disponible. Intenta más tarde.' });
+      }
+      console.error('Error Hugging Face:', errorText);
+      return res.status(500).json({ error: errorText || 'Error desconocido en Hugging Face' });
+    }
+    // Validar que la respuesta sea una imagen
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.startsWith('image/')) {
+      console.error('Respuesta inesperada de Hugging Face. Content-Type:', contentType);
+      return res.status(502).json({ error: 'La respuesta de Hugging Face no es una imagen válida.' });
     }
     const arrayBuffer = await response.arrayBuffer();
+    const extension = contentType.split('/')[1] || 'png';
     const base64 = Buffer.from(arrayBuffer).toString('base64');
-    return res.status(200).json({ image: `data:image/png;base64,${base64}` });
+    return res.status(200).json({ image: `data:image/${extension};base64,${base64}` });
   } catch (e) {
     console.error('Error general:', e);
     return res.status(500).json({ error: e.message || e.toString() });

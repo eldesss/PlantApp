@@ -9,6 +9,8 @@ export default function MiJardin() {
   const [imgJardin, setImgJardin] = useState(null);
   const [imgLoading, setImgLoading] = useState(false);
   const [imgError, setImgError] = useState(null);
+  const [estilo, setEstilo] = useState('');
+  const [userPlants, setUserPlants] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -20,40 +22,64 @@ export default function MiJardin() {
     const { id: userId } = JSON.parse(user);
     fetch('/api/plants')
       .then(res => res.json())
-      .then(async data => {
+      .then(data => {
         const userPlants = data.filter(p => p.userId === userId);
+        const checked = JSON.parse(localStorage.getItem('checkedPlants') || '[]');
+        const checkedPlants = userPlants.filter(p => checked.includes(p.apiData.scientificName));
         setPlants(userPlants);
+        setUserPlants(checkedPlants);
         setLoading(false);
-        if (userPlants.length > 0) {
-          setImgLoading(true);
-          setImgError(null);
-          try {
-            const nombres = userPlants.map(p => p.apiData.scientificName || p.apiData.scientificNameWithoutAuthor).filter(Boolean);
-            const res = await fetch('/api/generar-jardin', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ nombres })
-            });
-            const data = await res.json();
-            console.log('Respuesta del backend:', data);
-            if (data.image) {
-              setImgJardin(data.image);
-            } else {
-              setImgError(data.error || 'No se pudo generar la imagen');
-            }
-          } catch (e) {
-            setImgError('Error al generar la imagen');
-          }
-          setImgLoading(false);
-        }
       })
       .catch(() => setLoading(false));
   }, [router]);
+
+  const handleGenerarJardin = async () => {
+    if (userPlants.length === 0) return;
+    setImgLoading(true);
+    setImgError(null);
+    try {
+      const nombres = userPlants.map(p => p.apiData.scientificName || p.apiData.scientificNameWithoutAuthor).filter(Boolean);
+      const res = await fetch('/api/generar-jardin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombres, estilo })
+      });
+      const data = await res.json();
+      console.log('Respuesta del backend:', data);
+      if (data.image) {
+        setImgJardin(data.image);
+      } else {
+        setImgError(data.error || 'No se pudo generar la imagen');
+      }
+    } catch (e) {
+      setImgError('Error al generar la imagen');
+    }
+    setImgLoading(false);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100">
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold text-green-800 mb-6 text-center font-display">Mi Jardín</h1>
+        <div className="max-w-xl mx-auto mb-6">
+          <label className="block mb-2 text-green-900 font-semibold" htmlFor="estilo-jardin">
+            ¿Qué estilo quieres para tu jardín?
+          </label>
+          <input
+            id="estilo-jardin"
+            type="text"
+            className="w-full p-2 border border-green-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400 text-green-900 placeholder:text-green-700"
+            placeholder="Ejemplo: japonés, moderno, con muchas flores, minimalista..."
+            value={estilo}
+            onChange={e => setEstilo(e.target.value)}
+          />          <button
+            className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors"
+            onClick={handleGenerarJardin}
+            disabled={imgLoading || userPlants.length === 0}
+          >
+            Generar jardín
+          </button>
+        </div>
         {imgLoading && <div className="text-center text-gray-600 mb-4">Generando imagen de tu jardín...</div>}
         {imgError && <div className="text-center text-red-600 mb-4">{imgError}</div>}
         {imgJardin && (
@@ -63,10 +89,10 @@ export default function MiJardin() {
         )}
         {loading ? (
           <div className="text-center text-gray-600 font-sans">Cargando tu jardín...</div>
-        ) : plants.length === 0 && !imgLoading ? (
+        ) : userPlants.length === 0 && !imgLoading ? (
           <div className="text-center text-gray-600 font-sans">
-            <p className="text-lg">Tu jardín está vacío.</p>
-            <p className="mt-2">Ve a la página de <a href="/plantas" className="text-green-600 hover:text-green-800 underline">identificación</a> para agregar plantas a tu jardín.</p>
+            <p className="text-lg">No has seleccionado plantas para tu jardín.</p>
+            <p className="mt-2">Ve a la página de <a href="/plantas" className="text-green-600 hover:text-green-800 underline">biblioteca</a> y selecciona las plantas que quieras incluir.</p>
           </div>
         ) : null}
 
