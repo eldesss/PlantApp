@@ -39,7 +39,7 @@ export default function MiJardin() {
     setImgError(null);
     try {
       const nombres = userPlants.map(p => p.apiData.scientificName || p.apiData.scientificNameWithoutAuthor).filter(Boolean);
-      const res = await fetch('/api/generar-jardin', {
+      const res = await fetch('/api/garden', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nombres, estilo })
@@ -61,18 +61,19 @@ export default function MiJardin() {
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100">
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold text-green-800 mb-6 text-center font-display">Mi Jardín</h1>
-        <div className="max-w-xl mx-auto mb-6">
-          <label className="block mb-2 text-green-900 font-semibold" htmlFor="estilo-jardin">
+        <div className="flex flex-col items-center w-full max-w-md mx-auto mb-6">
+          <label className="block mb-2 text-green-900 font-semibold text-center w-full" htmlFor="estilo-jardin">
             ¿Qué estilo quieres para tu jardín?
           </label>
           <input
             id="estilo-jardin"
             type="text"
-            className="w-full p-2 border border-green-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400 text-green-900 placeholder:text-green-700"
+            className="w-full max-w-md px-4 py-2 border border-green-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-200 text-lg bg-white text-gray-900 font-sans placeholder:text-gray-400"
             placeholder="Ejemplo: japonés, moderno, con muchas flores, minimalista..."
             value={estilo}
             onChange={e => setEstilo(e.target.value)}
-          />          <button
+          />
+          <button
             className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors"
             onClick={handleGenerarJardin}
             disabled={imgLoading || userPlants.length === 0}

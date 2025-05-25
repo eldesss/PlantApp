@@ -1,0 +1,34 @@
+import { prisma } from '@/lib/prisma';
+
+export async function POST(req) {
+  try {
+    const { username, email, password } = await req.json();
+
+    if (!username || !email || !password) {
+      return new Response(JSON.stringify({ error: 'Faltan datos' }), { status: 400 });
+    }
+
+    // Comprobar si ya existe el usuario
+    const existing = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email },
+          { username }
+        ]
+      }
+    });
+
+    if (existing) {
+      return new Response(JSON.stringify({ error: 'El usuario ya existe' }), { status: 409 });
+    }
+
+    // Crear usuario
+    const user = await prisma.user.create({
+      data: { username, email, password }
+    });
+
+    return new Response(JSON.stringify({ user }), { status: 201 });
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message || 'Error en el registro' }), { status: 500 });
+  }
+} 

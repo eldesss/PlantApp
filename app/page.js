@@ -176,7 +176,7 @@ function PlantModal({ plant, onClose, onDelete }) {
         </div>
         {/* Confirmación personalizada para eliminar */}
         {showDeleteConfirm && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30">
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-white/60 backdrop-blur-sm transition-opacity duration-300">
             <div className="bg-white rounded-lg shadow-lg p-6 max-w-xs w-full flex flex-col items-center">
               <p className="mb-4 text-lg text-gray-800 text-center">¿Seguro que quieres eliminar esta planta?</p>
               <div className="flex gap-4">

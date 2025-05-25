@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "MyGiarden",
+  title: "Virtual Garden",
   description: "Crea tu jardín virtual",
 };
 
