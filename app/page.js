@@ -1,6 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
 import PlantCard from '@/components/plants/PlantCard';
 import { FaCheckCircle } from 'react-icons/fa';
 import { FaTrash } from 'react-icons/fa';
@@ -101,7 +103,7 @@ function PlantModal({ plant, onClose, onDelete }) {
                 <span className="text-xl leading-none">&#8592;</span>
               </button>
             )}
-            <img
+            <Image
               src={imagesToShowFinal[selectedImg]}
               alt={`Imagen ${selectedImg + 1}`}
               className={`w-full h-full object-cover mx-auto transition-opacity duration-500 ${show ? 'opacity-100' : 'opacity-0'}`}
@@ -109,6 +111,8 @@ function PlantModal({ plant, onClose, onDelete }) {
               onLoad={() => setShow(true)}
               onTransitionEnd={() => setShow(true)}
               onAnimationEnd={() => setShow(true)}
+              width={800}
+              height={600}
             />
             {/* Flecha derecha */}
             {imagesToShowFinal.length > 1 && (
@@ -126,12 +130,14 @@ function PlantModal({ plant, onClose, onDelete }) {
         {imagesToShowFinal.length > 1 && (
           <div className="flex gap-2 justify-center mb-6">
             {imagesToShowFinal.map((img, idx) => (
-              <img
+              <Image
                 key={idx}
                 src={img}
                 alt={`Miniatura ${idx + 1}`}
                 className={`w-14 h-14 object-cover rounded border cursor-pointer transition-all duration-150 ${selectedImg === idx ? 'ring-2 ring-green-600 scale-110' : 'opacity-70 hover:opacity-100'}`}
                 onClick={e => { e.stopPropagation(); setSelectedImg(idx); }}
+                width={56}
+                height={56}
               />
             ))}
           </div>
@@ -270,7 +276,7 @@ export default function Home() {
         ) : filteredPlants.length === 0 ? (
           <div className="text-center text-gray-600 font-sans">
             <p className="text-lg">No hay plantas guardadas aún.</p>
-            <p className="mt-2">Ve a la página de <a href="/plantas" className="text-green-600 hover:text-green-800 underline">identificación</a> para agregar plantas a tu biblioteca.</p>
+            <p className="mt-2">Ve a la página de <Link href="/plantas" className="text-green-600 hover:text-green-800 underline">identificación</Link> para agregar plantas a tu biblioteca.</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 max-w-[2000px] mx-auto">
@@ -316,10 +322,12 @@ export default function Home() {
                   </button>
                   <div className="aspect-square relative">
                     {imageUrl && imageUrl.length > 0 ? (
-                      <img
+                      <Image
                         src={imageUrl[0]}
                         alt={sciName}
                         className="w-full h-full object-cover"
+                        width={400}
+                        height={400}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-green-50">

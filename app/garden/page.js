@@ -1,6 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
 
 export default function MiJardin() {
   const [plants, setPlants] = useState([]);
@@ -87,12 +89,14 @@ export default function MiJardin() {
         {imgError && <div className="text-center text-red-600 mb-4">{imgError}</div>}
         {imgJardin && (
           <div className="flex flex-col items-center mb-8">
-            <img
+            <Image
               src={imgJardin}
               alt="Jardín generado"
               className={`rounded-2xl shadow-2xl max-w-2xl w-full object-contain border-4 border-green-200 transition-opacity duration-1000 ${imgVisible ? 'opacity-100' : 'opacity-0'}`}
               style={{ minHeight: 350, background: "#fff" }}
               onLoad={() => setImgVisible(true)}
+              width={1200}
+              height={800}
             />
             <a
               href={imgJardin}
@@ -108,7 +112,7 @@ export default function MiJardin() {
         ) : userPlants.length === 0 && !imgLoading ? (
           <div className="text-center text-gray-600 font-sans">
             <p className="text-lg">No has seleccionado plantas para tu jardín.</p>
-            <p className="mt-2">Ve a la página de <a href="/" className="text-green-600 hover:text-green-800 underline">biblioteca</a> y selecciona las plantas que quieras incluir.</p>
+            <p className="mt-2">Ve a la página de <Link href="/" className="text-green-600 hover:text-green-800 underline">biblioteca</Link> y selecciona las plantas que quieras incluir.</p>
           </div>
         ) : null}
 
@@ -128,10 +132,12 @@ export default function MiJardin() {
                 </button>
               </div>
               <div className="aspect-[4/3] mb-4 rounded-lg overflow-hidden">
-                <img
+                <Image
                   src={Array.isArray(selectedPlant.imageUrl) ? selectedPlant.imageUrl[0] : selectedPlant.imageUrl}
                   alt={selectedPlant.apiData.scientificName}
                   className="w-full h-full object-cover"
+                  width={800}
+                  height={600}
                 />
               </div>
               <div className="space-y-2 text-gray-700 font-sans">
