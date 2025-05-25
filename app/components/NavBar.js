@@ -16,7 +16,7 @@ export default function NavBar() {
     <nav className="bg-green-800 text-white p-4">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <Link href="/landing" className="text-xl font-bold hover:text-green-200 transition-colors">Virtual Garden</Link>
+          <Link href="/home" className="text-xl font-bold hover:text-green-200 transition-colors">Virtual Garden</Link>
           {!loading && user?.username && (
             <span className="ml-4 text-green-200 font-semibold">{user.username}</span>
           )}

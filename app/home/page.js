@@ -17,12 +17,6 @@ export default function LandingPage() {
               <FaLeaf className="text-green-600 text-2xl" />
               <span className="text-xl font-bold text-green-800 font-display">PlantApp</span>
             </div>
-            <div className="hidden md:flex space-x-6">
-              <Link href="/" className="text-green-700 hover:text-green-900 font-medium">Iniciar Sesión</Link>
-              <Link href="/register" className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                Registrarse
-              </Link>
-            </div>
             <button 
               className="md:hidden text-green-700"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
