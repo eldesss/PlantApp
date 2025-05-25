@@ -25,6 +25,8 @@ model Plant {
   apiData   Json
   imageUrl  Json?  
   createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }
 
 model Garden {
