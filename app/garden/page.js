@@ -11,6 +11,7 @@ export default function MiJardin() {
   const [imgError, setImgError] = useState(null);
   const [estilo, setEstilo] = useState('');
   const [userPlants, setUserPlants] = useState([]);
+  const [imgVisible, setImgVisible] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -47,6 +48,7 @@ export default function MiJardin() {
       const data = await res.json();
       console.log('Respuesta del backend:', data);
       if (data.image) {
+        setImgVisible(false);
         setImgJardin(data.image);
       } else {
         setImgError(data.error || 'No se pudo generar la imagen');
@@ -84,8 +86,21 @@ export default function MiJardin() {
         {imgLoading && <div className="text-center text-gray-600 mb-4">Generando imagen de tu jardín...</div>}
         {imgError && <div className="text-center text-red-600 mb-4">{imgError}</div>}
         {imgJardin && (
-          <div className="flex justify-center mb-8">
-            <img src={imgJardin} alt="Jardín generado" className="rounded-lg shadow-lg max-h-96 object-contain" />
+          <div className="flex flex-col items-center mb-8">
+            <img
+              src={imgJardin}
+              alt="Jardín generado"
+              className={`rounded-2xl shadow-2xl max-w-2xl w-full object-contain border-4 border-green-200 transition-opacity duration-1000 ${imgVisible ? 'opacity-100' : 'opacity-0'}`}
+              style={{ minHeight: 350, background: "#fff" }}
+              onLoad={() => setImgVisible(true)}
+            />
+            <a
+              href={imgJardin}
+              download="mi-jardin.png"
+              className="mt-8 bg-green-700 hover:bg-green-800 text-white font-bold py-3 px-8 rounded-lg transition-colors text-lg shadow-lg"
+            >
+              Descargar imagen
+            </a>
           </div>
         )}
         {loading ? (
@@ -93,7 +108,7 @@ export default function MiJardin() {
         ) : userPlants.length === 0 && !imgLoading ? (
           <div className="text-center text-gray-600 font-sans">
             <p className="text-lg">No has seleccionado plantas para tu jardín.</p>
-            <p className="mt-2">Ve a la página de <a href="/plantas" className="text-green-600 hover:text-green-800 underline">biblioteca</a> y selecciona las plantas que quieras incluir.</p>
+            <p className="mt-2">Ve a la página de <a href="/" className="text-green-600 hover:text-green-800 underline">biblioteca</a> y selecciona las plantas que quieras incluir.</p>
           </div>
         ) : null}
 

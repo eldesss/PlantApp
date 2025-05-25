@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FaCheckCircle } from 'react-icons/fa';
+import { Search, Loader } from 'lucide-react';
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -19,6 +20,7 @@ export default function PlantasPage() {
   const [error, setError] = useState(null);
   const [savedPlants, setSavedPlants] = useState([]);
   const [checkedPlants, setCheckedPlants] = useState([]);
+  const [valorBusqueda, setValorBusqueda] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -175,9 +177,18 @@ export default function PlantasPage() {
   // Renderizar biblioteca de plantas guardadas
   function renderSavedPlants() {
     if (!savedPlants || savedPlants.length === 0) return null;
+    // Filtrar plantas según el valor de búsqueda
+    const plantasFiltradas = savedPlants.filter(plant => {
+      const nombre = plant.apiData.scientificName?.toLowerCase() || "";
+      const familia = plant.apiData.family?.toLowerCase() || "";
+      return (
+        nombre.includes(valorBusqueda.toLowerCase()) ||
+        familia.includes(valorBusqueda.toLowerCase())
+      );
+    });
     return (
-      <div className="mt-10 w-full max-w-5xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mx-auto">
-        {savedPlants.map((plant, idx) => {
+      <div className="mt-2 w-full max-w-5xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mx-auto">
+        {plantasFiltradas.map((plant, idx) => {
           const isChecked = checkedPlants.includes(plant.apiData.scientificName);
           return (
             <div key={idx} className="relative bg-white border border-gray-200 rounded-xl shadow p-4 flex flex-col items-center">
@@ -210,7 +221,20 @@ export default function PlantasPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-green-50">
-      <h1 className="text-3xl font-bold text-green-800 mb-6">Escanear Plantas</h1>
+      <h1 className="text-3xl font-bold text-green-800 mb-6">Biblioteca de Plantas</h1>
+      {/* Input de búsqueda SIEMPRE visible */}
+      <div className="relative w-full max-w-md mx-auto mb-8">
+        <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+          <Search className="w-7 h-7 text-green-900" />
+        </span>
+        <input
+          type="text"
+          placeholder="Buscar por nombre científico o familia..."
+          className="w-full pl-12 pr-4 py-2 border border-green-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-200 text-lg bg-white text-gray-900 font-sans placeholder:text-gray-400 transition-all"
+          value={valorBusqueda}
+          onChange={e => setValorBusqueda(e.target.value)}
+        />
+      </div>
       <label className="cursor-pointer bg-green-700 text-white px-6 py-2 rounded shadow hover:bg-green-800 mb-4 font-semibold">
         Adjuntar imágenes
         <input
@@ -238,7 +262,11 @@ export default function PlantasPage() {
           disabled={files.length < 3 || loading}
           className="bg-green-600 text-white px-6 py-2 rounded shadow hover:bg-green-700 disabled:opacity-50"
         >
-          {loading ? 'Identificando...' : 'Identificar Planta'}
+          {loading ? (
+            <div className="flex justify-center items-center">
+              <Loader className="w-8 h-8 text-green-700 animate-spin" />
+            </div>
+          ) : 'Identificar Planta'}
         </button>
       )}
       {error && (

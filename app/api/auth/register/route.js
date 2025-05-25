@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import bcrypt from 'bcryptjs';
 
 export async function POST(req) {
   try {
@@ -22,9 +23,12 @@ export async function POST(req) {
       return new Response(JSON.stringify({ error: 'El usuario ya existe' }), { status: 409 });
     }
 
-    // Crear usuario
+    // Encriptar la contraseña
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Crear usuario con contraseña encriptada
     const user = await prisma.user.create({
-      data: { username, email, password }
+      data: { username, email, password: hashedPassword }
     });
 
     return new Response(JSON.stringify({ user }), { status: 201 });
