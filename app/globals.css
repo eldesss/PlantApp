@@ -13,6 +13,17 @@
   --font-mono: var(--font-geist-mono);
 }
 
+@font-face {
+  font-family: 'The Vine';
+  src: url('/fonts/The Vine.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.font-vine {
+  font-family: 'The Vine', cursive, sans-serif;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -20,8 +31,34 @@
   }
 }
 
+.rainbow-animated-gradient {
+  background: linear-gradient(270deg, #16a34a, #22d3ee, #a3e635, #16a34a);
+  background-size: 800% 800%;
+  animation: gradient-move 12s ease-in-out infinite;
+  color: rgb(255, 255, 255) !important;
+}
+
+.rainbow-animated-gradient,
+.bg-green-600 {
+  transition: background 1s cubic-bezier(0.4,0,0.2,1), color 0.3s;
+}
+
+@keyframes gradient-move {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: 'Inter', ui-sans-serif, system-ui, Arial, Helvetica, sans-serif;
+}
+
+.text-fill-green {
+  color: #208a32;
+}
+.text-outline-white {
+  -webkit-text-stroke: 2px #fff;
+  text-stroke: 2px #fff;
 }

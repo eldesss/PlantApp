@@ -3,9 +3,10 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import PlantCard from '@/components/plants/PlantCard';
 import { FaCheckCircle } from 'react-icons/fa';
 import { FaTrash } from 'react-icons/fa';
+import { FaSearch } from 'react-icons/fa';
+import { DotLoader } from "react-spinners";
 
 function PlantModal({ plant, onClose, onDelete }) {
   const [show, setShow] = useState(false);
@@ -80,7 +81,7 @@ function PlantModal({ plant, onClose, onDelete }) {
         aria-hidden="true"
       />
       <div
-        className={`relative bg-green-50 rounded-lg shadow-2xl border border-green-200 max-w-2xl w-full p-10 transition-all duration-300 ${show ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+        className={`relative bg-green-50 rounded-lg shadow-2xl border border-green-200 w-full max-w-xl md:max-w-2xl lg:max-w-3xl p-6 md:p-10 max-h-[90vh] overflow-y-auto transition-all duration-300 ${show ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
         onClick={e => e.stopPropagation()}
       >
         <button
@@ -89,14 +90,14 @@ function PlantModal({ plant, onClose, onDelete }) {
         >
           ×
         </button>
-        <h2 className="text-3xl font-bold mb-6 text-green-800 text-center">Información de la Planta</h2>
+        <h2 className="text-3xl font-bold mb-8 text-green-800 text-center">Información de la Planta</h2>
         {/* Carrusel de imágenes */}
         {imagesToShowFinal.length > 0 && (
-          <div className="relative w-full aspect-[4/3] bg-white rounded mb-6 border flex items-center justify-center">
+          <div className="relative w-full aspect-[4/3] bg-white rounded mb-8 border flex items-center justify-center">
             {/* Flecha izquierda */}
             {imagesToShowFinal.length > 1 && (
               <button
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-green-100 hover:bg-green-200 text-green-800 rounded-full w-10 h-10 flex items-center justify-center shadow transition-colors duration-200"
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-green-100 hover:bg-green-200 text-green-800 rounded-full w-10 h-10 flex items-center justify-center shadow transition-colors duration-200"
                 onClick={e => { e.stopPropagation(); setSelectedImg((selectedImg - 1 + imagesToShowFinal.length) % imagesToShowFinal.length); }}
                 aria-label="Anterior"
               >
@@ -117,7 +118,7 @@ function PlantModal({ plant, onClose, onDelete }) {
             {/* Flecha derecha */}
             {imagesToShowFinal.length > 1 && (
               <button
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-green-100 hover:bg-green-200 text-green-800 rounded-full w-10 h-10 flex items-center justify-center shadow transition-colors duration-200"
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-green-100 hover:bg-green-200 text-green-800 rounded-full w-10 h-10 flex items-center justify-center shadow transition-colors duration-200"
                 onClick={e => { e.stopPropagation(); setSelectedImg((selectedImg + 1) % imagesToShowFinal.length); }}
                 aria-label="Siguiente"
               >
@@ -128,7 +129,7 @@ function PlantModal({ plant, onClose, onDelete }) {
         )}
         {/* Miniaturas */}
         {imagesToShowFinal.length > 1 && (
-          <div className="flex gap-2 justify-center mb-6">
+          <div className="flex gap-4 justify-center mb-8 mt-2">
             {imagesToShowFinal.map((img, idx) => (
               <Image
                 key={idx}
@@ -222,7 +223,7 @@ export default function Home() {
   useEffect(() => {
     const user = sessionStorage.getItem('user');
     if (!user) {
-      router.push('/login');
+      router.push('/');
       return;
     }
     const { id: userId } = JSON.parse(user);
@@ -261,22 +262,29 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100">
       <main className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-green-800 mb-6 text-center font-display">Biblioteca de Plantas</h1>
+        <h1 className="text-4xl font-bold text-green-800 mb-6 text-center font-display font-leafy">Biblioteca de Plantas</h1>
         <div className="flex justify-center mb-8">
-          <input
-            type="text"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Buscar por nombre científico o familia..."
-            className="w-full max-w-md px-4 py-2 border border-green-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-200 text-lg bg-white text-gray-900 font-sans"
-          />
+          <div className="relative w-full max-w-md">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-600">
+              <FaSearch />
+            </span>
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Buscar por nombre científico o familia..."
+              className="w-full pl-10 pr-4 py-2 border border-green-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-200 text-lg bg-white text-gray-900 font-sans"
+            />
+          </div>
         </div>
         {loading ? (
-          <div className="text-center text-gray-600 font-sans">Cargando plantas...</div>
+          <div className="flex justify-center items-center h-full mt-64">
+            <DotLoader color="#16a34a" size={60} />
+          </div>
         ) : filteredPlants.length === 0 ? (
           <div className="text-center text-gray-600 font-sans">
-            <p className="text-lg">No hay plantas guardadas aún.</p>
-            <p className="mt-2">Ve a la página de <Link href="/plantas" className="text-green-600 hover:text-green-800 underline">identificación</Link> para agregar plantas a tu biblioteca.</p>
+            <p className="text-lg mt-56">No hay plantas guardadas aún.</p>
+            <p className="mt-2">Ve a la página de <Link href="/identify" className="text-green-600 hover:text-green-800 underline">identificación</Link> para agregar plantas a tu biblioteca.</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 max-w-[2000px] mx-auto">

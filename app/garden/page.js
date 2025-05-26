@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { DotLoader } from "react-spinners";
 
 export default function MiJardin() {
   const [plants, setPlants] = useState([]);
@@ -19,7 +20,7 @@ export default function MiJardin() {
   useEffect(() => {
     const user = sessionStorage.getItem('user');
     if (!user) {
-      router.push('/login');
+      router.push('/');
       return;
     }
     const { id: userId } = JSON.parse(user);
@@ -69,6 +70,7 @@ export default function MiJardin() {
           <label className="block mb-2 text-green-900 font-semibold text-center w-full" htmlFor="estilo-jardin">
             ¿Qué estilo quieres para tu jardín?
           </label>
+          
           <input
             id="estilo-jardin"
             type="text"
@@ -78,12 +80,16 @@ export default function MiJardin() {
             onChange={e => setEstilo(e.target.value)}
           />
           <button
-            className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors"
-            onClick={handleGenerarJardin}
-            disabled={imgLoading || userPlants.length === 0}
-          >
-            Generar jardín
-          </button>
+  className={`mt-4 w-full font-bold py-2 px-4 rounded text-lg shadow-lg transition-colors duration-500 bg-green-600
+    ${estilo.trim().length > 0 && userPlants.length > 0
+      ? 'rainbow-animated-gradient'
+      : 'hover:bg-green-700 text-white'}
+  `}
+  onClick={handleGenerarJardin}
+  disabled={imgLoading || userPlants.length === 0}
+>
+  Generar jardín
+</button>
         </div>
         {imgLoading && <div className="text-center text-gray-600 mb-4">Generando imagen de tu jardín...</div>}
         {imgError && <div className="text-center text-red-600 mb-4">{imgError}</div>}
@@ -108,11 +114,13 @@ export default function MiJardin() {
           </div>
         )}
         {loading ? (
-          <div className="text-center text-gray-600 font-sans">Cargando tu jardín...</div>
+          <div className="flex justify-center items-center h-full mt-40">
+          <DotLoader color="#16a34a" size={60} />
+        </div>
         ) : userPlants.length === 0 && !imgLoading ? (
           <div className="text-center text-gray-600 font-sans">
-            <p className="text-lg">No has seleccionado plantas para tu jardín.</p>
-            <p className="mt-2">Ve a la página de <Link href="/" className="text-green-600 hover:text-green-800 underline">biblioteca</Link> y selecciona las plantas que quieras incluir.</p>
+            <p className="text-lg mt-10">No has seleccionado plantas para tu jardín.</p>
+            <p className="mt-2">Ve a la página de <Link href="/plants" className="text-green-600 hover:text-green-800 underline">biblioteca</Link> y selecciona las plantas que quieras incluir.</p>
           </div>
         ) : null}
 

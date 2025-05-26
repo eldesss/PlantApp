@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { FaCheckCircle } from 'react-icons/fa';
 import { Search, Loader } from 'lucide-react';
@@ -21,12 +21,14 @@ export default function PlantasPage() {
   const [savedPlants, setSavedPlants] = useState([]);
   const [checkedPlants, setCheckedPlants] = useState([]);
   const [valorBusqueda, setValorBusqueda] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
+  const dropRef = useRef(null);
   const router = useRouter();
 
   useEffect(() => {
     const user = sessionStorage.getItem('user');
     if (!user) {
-      router.push('/login');
+      router.push('/');
     }
   }, [router]);
 
@@ -219,8 +221,36 @@ export default function PlantasPage() {
     );
   }
 
+  // Drag & Drop handlers
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const filesArr = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith("image/"));
+    if (filesArr.length > 0) {
+      setFiles(filesArr.slice(0, 3)); // máximo 3 imágenes
+      setResult(null);
+      setError(null);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-green-50">
+    <div
+      ref={dropRef}
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      className={`min-h-screen flex flex-col items-center justify-center bg-green-50 transition-all duration-200 ${isDragging ? 'ring-4 ring-green-400 bg-green-100' : ''}`}
+    >
       <h1 className="text-3xl font-bold text-green-800 mb-6">Biblioteca de Plantas</h1>
       {/* Input de búsqueda SIEMPRE visible */}
       <div className="relative w-full max-w-md mx-auto mb-8">
@@ -245,6 +275,9 @@ export default function PlantasPage() {
           className="hidden"
         />
       </label>
+      {isDragging && (
+        <div className="mb-4 text-green-700 font-semibold animate-pulse">Suelta aquí tus imágenes...</div>
+      )}
       <div className="w-full max-w-2xl flex justify-center gap-12 mb-8">
         {files.map((file, idx) => (
           <div key={idx} className="group cursor-pointer" onClick={() => handleRemove(idx)} title="Quitar imagen">
