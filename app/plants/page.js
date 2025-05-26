@@ -262,7 +262,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100">
       <main className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-green-800 mb-6 text-center font-display font-leafy">Biblioteca de Plantas</h1>
+        <h1 className="text-4xl font-bold text-green-800 mb-6 text-center font-display font-leafy">Identificar Plantas</h1>
         <div className="flex justify-center mb-8">
           <div className="relative w-full max-w-md">
             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-600">

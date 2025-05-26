@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { DotLoader } from "react-spinners";
+import { Sparkles } from "lucide-react";
 
 export default function MiJardin() {
   const [plants, setPlants] = useState([]);
@@ -70,15 +71,19 @@ export default function MiJardin() {
           <label className="block mb-2 text-green-900 font-semibold text-center w-full" htmlFor="estilo-jardin">
             ¿Qué estilo quieres para tu jardín?
           </label>
-          
+          <div className="relative w-full max-w-md">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-yellow-400 pointer-events-none">
+            <Sparkles size={22} />
+          </span>
           <input
             id="estilo-jardin"
             type="text"
-            className="w-full max-w-md px-4 py-2 border border-green-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-200 text-lg bg-white text-gray-900 font-sans placeholder:text-gray-400"
+            className="w-full max-w-md pl-10 pr-4 py-2 border border-green-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-200 text-lg bg-white text-gray-900 font-sans placeholder:text-gray-400"
             placeholder="Ejemplo: japonés, moderno, con muchas flores, minimalista..."
             value={estilo}
             onChange={e => setEstilo(e.target.value)}
           />
+        </div>
           <button
   className={`mt-4 w-full font-bold py-2 px-4 rounded text-lg shadow-lg transition-colors duration-500 bg-green-600
     ${estilo.trim().length > 0 && userPlants.length > 0

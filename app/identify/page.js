@@ -107,7 +107,7 @@ export default function PlantasPage() {
       }
       const savedPlant = await res.json();
       console.log('Planta guardada:', savedPlant);
-      router.push('/');
+      router.push('/plants');
     } catch (error) {
       console.error('Error al guardar:', error);
       setError(error.message);
@@ -251,20 +251,7 @@ export default function PlantasPage() {
       onDragLeave={handleDragLeave}
       className={`min-h-screen flex flex-col items-center justify-center bg-green-50 transition-all duration-200 ${isDragging ? 'ring-4 ring-green-400 bg-green-100' : ''}`}
     >
-      <h1 className="text-3xl font-bold text-green-800 mb-6">Biblioteca de Plantas</h1>
-      {/* Input de búsqueda SIEMPRE visible */}
-      <div className="relative w-full max-w-md mx-auto mb-8">
-        <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-          <Search className="w-7 h-7 text-green-900" />
-        </span>
-        <input
-          type="text"
-          placeholder="Buscar por nombre científico o familia..."
-          className="w-full pl-12 pr-4 py-2 border border-green-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-200 text-lg bg-white text-gray-900 font-sans placeholder:text-gray-400 transition-all"
-          value={valorBusqueda}
-          onChange={e => setValorBusqueda(e.target.value)}
-        />
-      </div>
+      <h1 className="text-3xl font-bold text-green-800 mb-6">Identificar Plantas</h1>
       <label className="cursor-pointer bg-green-700 text-white px-6 py-2 rounded shadow hover:bg-green-800 mb-4 font-semibold">
         Adjuntar imágenes
         <input

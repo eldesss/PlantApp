@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from './context/UserContext';
+import { FaUser, FaEnvelope, FaLock } from 'react-icons/fa';
 
 export default function LoginPage() {
   const [isRegister, setIsRegister] = useState(false);
@@ -62,51 +63,61 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-green-50">
-      <div className="bg-white p-8 rounded shadow-md w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-green-800 mb-4 text-center">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-green-200 via-green-100 to-green-300">
+      <div className="bg-white/90 p-8 rounded-2xl shadow-2xl border-2 border-green-200 w-full max-w-sm relative overflow-hidden animate-fade-in">
+        <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-24 h-24 bg-green-600 rounded-full blur-2xl opacity-30 z-0" />
+        <h1 className="text-3xl font-extrabold text-green-800 mb-6 text-center font-display tracking-wide drop-shadow-lg">
           {isRegister ? 'Registro' : 'Iniciar Sesión'}
         </h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5 z-10 relative">
           {isRegister && (
-            <input
-              type="text"
-              placeholder="Usuario"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              className="w-full px-3 py-2 border rounded text-gray-800 placeholder-gray-600 bg-gray-100"
-            />
+            <div className="relative">
+              <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-green-400" />
+              <input
+                type="text"
+                placeholder="Usuario"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                className="w-full pl-10 pr-3 py-2 border border-green-300 rounded-lg text-gray-800 placeholder-gray-500 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-200 transition"
+              />
+            </div>
           )}
-          <input
-            type="email"
-            placeholder="Correo electrónico"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            className="w-full px-3 py-2 border rounded text-gray-800 placeholder-gray-600 bg-gray-100"
-          />
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            className="w-full px-3 py-2 border rounded text-gray-800 placeholder-gray-600 bg-gray-100"
-          />
+          <div className="relative">
+            <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-green-400" />
+            <input
+              type="email"
+              placeholder="Correo electrónico"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              className="w-full pl-10 pr-3 py-2 border border-green-300 rounded-lg text-gray-800 placeholder-gray-500 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-200 transition"
+            />
+          </div>
+          <div className="relative">
+            <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-green-400" />
+            <input
+              type="password"
+              placeholder="Contraseña"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              className="w-full pl-10 pr-3 py-2 border border-green-300 rounded-lg text-gray-800 placeholder-gray-500 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-200 transition"
+            />
+          </div>
           {error && (
-            <div className="text-red-600 text-sm">{error}</div>
+            <div className="text-red-600 text-sm text-center animate-pulse">{error}</div>
           )}
           {success && (
-            <div className="text-green-600 text-sm">{success}</div>
+            <div className="text-green-600 text-sm text-center animate-fade-in">{success}</div>
           )}
           <button
             type="submit"
-            className="w-full bg-green-700 text-white py-2 rounded hover:bg-green-800"
+            className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white py-3 rounded-lg font-bold text-lg shadow-lg transition-all duration-300 tracking-wide"
           >
             {isRegister ? 'Registrarse' : 'Entrar'}
           </button>
         </form>
-        <div className="mt-4 text-center">
+        <div className="mt-6 text-center z-10 relative">
           <button
-            className="text-green-700 hover:underline"
+            className="text-green-700 hover:underline font-semibold transition"
             onClick={() => { setIsRegister(!isRegister); setError(''); setSuccess(''); }}
           >
             {isRegister ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Regístrate'}
