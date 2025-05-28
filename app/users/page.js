@@ -26,7 +26,7 @@ export default function UsuariosPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-green-50 flex flex-col items-center py-10">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100 flex flex-col items-center py-10">
       <h1 className="text-3xl font-bold text-green-800 mb-8">Usuarios registrados</h1>
       {loading && (
         <div className="flex justify-center items-center h-32mt-70">

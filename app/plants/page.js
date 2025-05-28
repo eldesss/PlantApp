@@ -3,10 +3,10 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaCheckCircle } from 'react-icons/fa';
 import { FaTrash } from 'react-icons/fa';
-import { FaSearch } from 'react-icons/fa';
 import { DotLoader } from "react-spinners";
+import SearchBar from "@/components/SearchBar";
+import PlantCard from "@/components/plants/PlantCard";
 
 function PlantModal({ plant, onClose, onDelete }) {
   const [show, setShow] = useState(false);
@@ -264,18 +264,11 @@ export default function Home() {
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold text-green-800 mb-6 text-center font-display font-leafy">Mis Plantas</h1>
         <div className="flex justify-center mb-8">
-          <div className="relative w-full max-w-md">
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-600">
-              <FaSearch />
-            </span>
-            <input
-              type="text"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Buscar por nombre científico o familia..."
-              className="w-full pl-10 pr-4 py-2 border border-green-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-200 text-lg bg-white text-gray-900 font-sans"
-            />
-          </div>
+          <SearchBar
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar por nombre científico o familia..."
+          />
         </div>
         {loading ? (
           <div className="flex justify-center items-center h-full mt-64">
@@ -298,11 +291,19 @@ export default function Home() {
               const score = plant.apiData.score ? (typeof plant.apiData.score === 'number' ? (plant.apiData.score * 100).toFixed(1) : plant.apiData.score) : null;
               const createdAt = plant.createdAt ? new Date(plant.createdAt) : null;
               return (
-                <div
+                <PlantCard
                   key={plant.id || index}
-                  className="relative bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-200 hover:scale-105 hover:shadow-xl cursor-pointer"
+                  plant={{
+                    scientificName: sciName,
+                    family,
+                    imageUrl,
+                    score,
+                    createdAt,
+                    ...plant.apiData,
+                    id: plant.id
+                  }}
                   onClick={e => {
-                    if (e.target.closest('button')) return;
+                    if (e?.target?.closest && e.target.closest('button')) return;
                     setSelectedPlant({
                       scientificName: sciName,
                       family,
@@ -313,43 +314,7 @@ export default function Home() {
                       id: plant.id
                     });
                   }}
-                >
-                  <button
-                    className={`absolute top-2 right-2 text-2xl focus:outline-none z-10 ${isChecked ? 'text-green-600' : 'text-gray-300'}`}
-                    title={isChecked ? 'Quitar de selección' : 'Seleccionar para el jardín'}
-                    onClick={e => {
-                      e.stopPropagation();
-                      setCheckedPlants(prev =>
-                        isChecked
-                          ? prev.filter(name => name !== sciName)
-                          : [...prev, sciName]
-                      );
-                    }}
-                  >
-                    <FaCheckCircle />
-                  </button>
-                  <div className="aspect-square relative">
-                    {imageUrl && imageUrl.length > 0 ? (
-                      <Image
-                        src={imageUrl[0]}
-                        alt={sciName}
-                        className="w-full h-full object-cover"
-                        width={400}
-                        height={400}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-green-50">
-                        <span className="text-gray-400">Sin imagen</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-lg text-gray-800 mb-1 font-display">{sciName}</h3>
-                    <div className="mt-2 text-sm text-gray-500 font-sans">
-                      <p>Familia: {family || 'No especificada'}</p>
-                    </div>
-                  </div>
-                </div>
+                />
               );
             })}
           </div>

@@ -3,12 +3,14 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import PlantCard from "@/components/plants/PlantCard";
 import { DotLoader } from "react-spinners";
+import PlantModal from "@/components/PlantModal";
 
 export default function UsuarioDetallePage() {
   const { id } = useParams();
   const [usuario, setUsuario] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedPlant, setSelectedPlant] = useState(null);
 
   useEffect(() => {
     async function fetchUsuario() {
@@ -27,7 +29,7 @@ export default function UsuarioDetallePage() {
   }, [id]);
 
   return (
-    <div className="min-h-screen bg-green-50 flex flex-col items-center py-10">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100 flex flex-col items-center py-10">
       {loading && (
         <div className="flex justify-center items-center h-32 mt-70">
           <DotLoader color="#22c55e" size={60} />
@@ -50,6 +52,11 @@ export default function UsuarioDetallePage() {
                       imageUrl: planta.imageUrl,
                       score: planta.apiData?.score
                     }}
+                    onClick={() => setSelectedPlant({
+                      scientificName: planta.apiData?.scientificName || "Sin nombre",
+                      family: planta.apiData?.family || "",
+                      imageUrl: planta.imageUrl
+                    })}
                   />
                 </div>
               ))
@@ -57,6 +64,9 @@ export default function UsuarioDetallePage() {
               <span className="text-gray-500">Este usuario no tiene plantas.</span>
             )}
           </div>
+          {selectedPlant && (
+            <PlantModal plant={selectedPlant} onClose={() => setSelectedPlant(null)} />
+          )}
         </>
       )}
     </div>
