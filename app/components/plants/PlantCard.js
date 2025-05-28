@@ -1,5 +1,5 @@
 export default function PlantCard({ plant, onClick }) {
-  const { scientificName, family, imageUrl, score } = plant;
+  const { scientificName, family, imageUrl} = plant;
   let previewImage = null;
   if (imageUrl && Array.isArray(imageUrl) && imageUrl.length > 0) {
     previewImage = imageUrl[0];

@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { FaCheckCircle } from 'react-icons/fa';
-import { Search, Loader } from 'lucide-react';
+import { Search, Loader, Upload } from 'lucide-react';
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -252,7 +252,8 @@ export default function PlantasPage() {
       className={`min-h-screen flex flex-col items-center justify-center bg-green-50 transition-all duration-200 ${isDragging ? 'ring-4 ring-green-400 bg-green-100' : ''}`}
     >
       <h1 className="text-3xl font-bold text-green-800 mb-6">Identificar Plantas</h1>
-      <label className="cursor-pointer bg-green-700 text-white px-6 py-2 rounded shadow hover:bg-green-800 mb-4 font-semibold">
+      <label className="cursor-pointer bg-green-700 text-white px-6 py-2 rounded shadow hover:bg-green-800 mb-4 font-semibold flex items-center gap-2">
+      <Upload className="w-5 h-5 mr-2" />
         Adjuntar imágenes
         <input
           type="file"
