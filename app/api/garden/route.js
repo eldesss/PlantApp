@@ -8,7 +8,7 @@ export async function POST(req) {
       return NextResponse.json({ error: 'No se recibieron nombres de plantas' }, { status: 400 });
     }
 
-    const HUGGING_FACE_API = process.env.HUGGING_FACE_API_1;
+    const HUGGING_FACE_API = process.env.HUGGING_FACE_API;
     const HUGGINGFACE_API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large";
     const prompt = `Un jardín con el estilo: ${estilo ? estilo : ''} con las siguientes plantas: ${nombres.join(', ')}.`;
 
