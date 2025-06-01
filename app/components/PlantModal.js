@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 export default function PlantModal({ plant, onClose }) {
   if (!plant) return null;
   const { scientificName, family, imageUrl } = plant;
@@ -18,7 +20,7 @@ export default function PlantModal({ plant, onClose }) {
         <h2 className="text-2xl font-bold text-green-800 mb-4 text-center">{scientificName}</h2>
         <div className="flex flex-col items-center">
           {previewImage ? (
-            <img src={previewImage} alt={scientificName} className="w-60 h-60 object-cover rounded-lg border mb-4" />
+            <Image src={previewImage} alt={scientificName} className="w-60 h-60 object-cover rounded-lg border mb-4" width={240} height={240} unoptimized />
           ) : (
             <div className="w-60 h-60 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 border mb-4 text-4xl">?</div>
           )}

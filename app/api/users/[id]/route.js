@@ -7,6 +7,7 @@ export async function GET(req, context) {
       where: { id },
       select: {
         username: true,
+        id: true,
         plants: {
           select: {
             id: true,
@@ -14,6 +15,9 @@ export async function GET(req, context) {
             imageUrl: true,
             createdAt: true
           }
+        },
+        favoritedBy: {
+          select: { id: true }
         }
       }
     });

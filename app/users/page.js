@@ -2,12 +2,26 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DotLoader } from "react-spinners";
+import SearchBar from "../components/SearchBar";
+import FavoriteButton from "@/components/FavoriteButton";
 
 export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const router = useRouter();
+  const [search, setSearch] = useState("");
+  const [favoriteStates, setFavoriteStates] = useState({});
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  useEffect(() => {
+    const user = sessionStorage.getItem('user');
+    if (user) {
+      try {
+        setCurrentUserId(JSON.parse(user).id);
+      } catch {}
+    }
+  }, []);
 
   useEffect(() => {
     async function fetchUsuarios() {
@@ -25,24 +39,71 @@ export default function UsuariosPage() {
     fetchUsuarios();
   }, []);
 
+  useEffect(() => {
+    if (!currentUserId) return;
+    const favs = {};
+    usuarios.forEach(u => {
+      favs[u.id] = u.favoritedBy?.some(f => f.id === currentUserId) || false;
+    });
+    setFavoriteStates(favs);
+  }, [usuarios, currentUserId]);
+
+  const handleToggleFavorite = async (userId) => {
+    if (!currentUserId) return;
+    const isFav = favoriteStates[userId];
+    setFavoriteStates(prev => ({ ...prev, [userId]: !isFav }));
+    try {
+      const res = await fetch(`/api/users/${userId}/favorite`, {
+        method: isFav ? 'DELETE' : 'POST',
+        headers: { 'x-user-id': currentUserId }
+      });
+      if (!res.ok) throw new Error('Error al actualizar favorito');
+      const resUsers = await fetch('/api/users');
+      if (resUsers.ok) {
+        const data = await resUsers.json();
+        setUsuarios(data);
+      }
+    } catch (e) {
+      setFavoriteStates(prev => ({ ...prev, [userId]: isFav }));
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100 flex flex-col items-center py-10">
-      <h1 className="text-3xl font-bold text-green-800 mb-8">Usuarios registrados</h1>
+      <h1 className="text-3xl font-bold text-green-800 mb-8">Descubrir</h1>
+      <div className="flex justify-center mb-8">
+        <SearchBar
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Buscar usuario..."
+        />
+      </div>
       {loading && (
-        <div className="flex justify-center items-center h-32mt-70">
+        <div className="flex justify-center items-center h-32mt-70 m-60">
           <DotLoader color="#22c55e" size={60} />
         </div>
       )}
       {error && <div className="text-red-600">{error}</div>}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-6xl">
-        {usuarios.map((usuario) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-6xl justify-center">
+        {usuarios
+          .filter(usuario => usuario.username.toLowerCase().includes(search.toLowerCase()))
+          .filter(usuario => usuario.id !== currentUserId)
+          .sort((a, b) => {
+            const favA = a.favoritedBy?.length || 0;
+            const favB = b.favoritedBy?.length || 0;
+            if (favB !== favA) return favB - favA;
+            const plantasA = a.plants?.length || 0;
+            const plantasB = b.plants?.length || 0;
+            return plantasB - plantasA;
+          })
+          .map((usuario) => (
           <div
             key={usuario.username}
-            className="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center border border-gray-200 min-w-[16rem] max-w-[22rem] transition-transform hover:scale-105 hover:shadow-xl cursor-pointer"
+            className="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center border border-gray-200 w-full transition-transform hover:scale-105 hover:shadow-xl cursor-pointer relative"
             onClick={() => router.push(`/users/${usuario.id}`)}
           >
             <span className="text-2xl font-extrabold text-green-700 mb-4 text-center tracking-wide capitalize drop-shadow-sm">{usuario.username}</span>
-            <div className="flex gap-3 bg-green-50 rounded-xl p-3 min-h-[5.5rem] items-center justify-center w-full mb-2">
+            <div className="flex gap-3 bg-green-50 rounded-xl p-3 min-h-[5.5rem] items-center justify-center w-full mb-2 relative">
               {usuario.plants && usuario.plants.length > 0 ? (
                 usuario.plants.slice(0, 3).map((planta) => (
                   <div key={planta.id} className="flex flex-col items-center">
@@ -56,6 +117,19 @@ export default function UsuariosPage() {
               ) : (
                 <span className="text-xs text-gray-400">Sin plantas</span>
               )}
+              <FavoriteButton
+                userId={usuario.id}
+                favoritedBy={usuario.favoritedBy}
+                currentUserId={currentUserId}
+                className="absolute bottom-1 right-1"
+                onChange={async () => {
+                  const resUsers = await fetch('/api/users');
+                  if (resUsers.ok) {
+                    const data = await resUsers.json();
+                    setUsuarios(data);
+                  }
+                }}
+              />
             </div>
             <span className="text-sm text-green-800 font-medium mt-2">{usuario.plants ? usuario.plants.length : 0} planta{usuario.plants && usuario.plants.length === 1 ? '' : 's'}</span>
           </div>

@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import PlantCard from "@/components/plants/PlantCard";
 import { DotLoader } from "react-spinners";
 import PlantModal from "@/components/PlantModal";
+import FavoriteButton from "@/components/FavoriteButton";
 
 export default function UsuarioDetallePage() {
   const { id } = useParams();
@@ -11,6 +12,16 @@ export default function UsuarioDetallePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedPlant, setSelectedPlant] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  useEffect(() => {
+    const user = sessionStorage.getItem('user');
+    if (user) {
+      try {
+        setCurrentUserId(JSON.parse(user).id);
+      } catch {}
+    }
+  }, []);
 
   useEffect(() => {
     async function fetchUsuario() {
@@ -38,9 +49,25 @@ export default function UsuarioDetallePage() {
       {error && <div className="text-red-600">{error}</div>}
       {!loading && !error && usuario && (
         <>
-          <h1 className="text-4xl font-extrabold text-green-800 mb-10 text-center drop-shadow-sm capitalize">
+          <h1 className="text-4xl font-extrabold text-green-800 mb-4 text-center drop-shadow-sm capitalize">
             {usuario.username}
           </h1>
+          {currentUserId && usuario.id !== currentUserId && (
+            <div className="flex justify-center mb-4">
+              <FavoriteButton
+                userId={usuario.id}
+                favoritedBy={usuario.favoritedBy}
+                currentUserId={currentUserId}
+                onChange={async () => {
+                  const res = await fetch(`/api/users/${usuario.id}`);
+                  if (res.ok) {
+                    const data = await res.json();
+                    setUsuario(data);
+                  }
+                }}
+              />
+            </div>
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 w-full max-w-6xl">
             {usuario.plants && usuario.plants.length > 0 ? (
               usuario.plants.map((planta, idx) => (
@@ -57,6 +84,7 @@ export default function UsuarioDetallePage() {
                       family: planta.apiData?.family || "",
                       imageUrl: planta.imageUrl
                     })}
+                    showCheck={false}
                   />
                 </div>
               ))

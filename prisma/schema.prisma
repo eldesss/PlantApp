@@ -16,6 +16,8 @@ model User {
   verificationToken String?   @unique
   plants            Plant[]
   gardens           Garden[]
+  favorites         User[]    @relation("UserFavorites")
+  favoritedBy       User[]    @relation("UserFavorites")
 }
 
 model Plant {

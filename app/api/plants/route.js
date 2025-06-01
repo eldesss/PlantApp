@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import sharp from 'sharp';
 
 // Obtener todas las plantas del usuario autenticado
 export async function GET(req) {
@@ -21,11 +22,32 @@ export async function POST(req) {
     return NextResponse.json({ error: 'Faltan datos obligatorios' }, { status: 400 });
   }
 
+  // Optimizar imágenes si llegan como base64
+  let optimizedImages = imageUrl;
+  if (Array.isArray(imageUrl)) {
+    optimizedImages = await Promise.all(
+      imageUrl.map(async (imgBase64) => {
+        try {
+          const base64Data = imgBase64.replace(/^data:image\/\w+;base64,/, "");
+          const buffer = Buffer.from(base64Data, 'base64');
+          const outputBuffer = await sharp(buffer)
+            .resize({ width: 600 })
+            .jpeg({ quality: 70 })
+            .toBuffer();
+          return `data:image/jpeg;base64,${outputBuffer.toString('base64')}`;
+        } catch (e) {
+          // Si falla, devuelve la original
+          return imgBase64;
+        }
+      })
+    );
+  }
+
   const planta = await prisma.plant.create({
     data: {
       userId,
       apiData,
-      imageUrl,
+      imageUrl: optimizedImages,
     },
   });
 

@@ -59,11 +59,11 @@ export default function NavBar() {
             <span className="block h-0.5 bg-green-200 scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
           </Link>
           <Link href="/users" className="relative group font-medium w-full sm:w-auto text-center py-2 sm:py-0">
-            <span className="hover:text-green-200 transition-colors">Usuarios</span>
+            <span className="hover:text-green-200 transition-colors">Descubrir</span>
             <span className="block h-0.5 bg-green-200 scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
           </Link>
           <button
-            className="ml-0 sm:ml-6 flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg font-semibold shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-300 w-full sm:w-auto justify-center mt-4 sm:mt-0"
+            className="ml-0 sm:ml-6 flex items-center gap-2 bg-green-800 hover:bg-green-900 text-white px-5 py-2 rounded-lg font-semibold shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-300 w-full sm:w-auto justify-center mt-4 sm:mt-0"
             onClick={handleLogout}
           >
             <FaSignOutAlt className="text-lg" />

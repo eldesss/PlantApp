@@ -3,10 +3,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaTrash } from 'react-icons/fa';
+import { FaTrash, FaCheckCircle } from 'react-icons/fa';
 import { DotLoader } from "react-spinners";
 import SearchBar from "@/components/SearchBar";
-import PlantCard from "@/components/plants/PlantCard";
 
 function PlantModal({ plant, onClose, onDelete }) {
   const [show, setShow] = useState(false);
@@ -227,27 +226,35 @@ export default function Home() {
       return;
     }
     const { id: userId } = JSON.parse(user);
-    // Obtener plantas desde la base de datos
     fetch('/api/plants')
       .then(res => res.json())
       .then(data => {
-        // Filtrar solo las plantas del usuario autenticado
-        setPlants(data.filter(p => p.userId === userId));
+        const userPlants = data.filter(p => p.userId === userId);
+        setPlants(userPlants);
+        // Cargar plantas seleccionadas del localStorage
+        const savedChecked = JSON.parse(localStorage.getItem('checkedPlants') || '[]');
+        setCheckedPlants(savedChecked);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, [router]);
 
-  useEffect(() => {
-    const checked = localStorage.getItem('checkedPlants');
-    if (checked) {
-      setCheckedPlants(JSON.parse(checked));
-    }
-  }, []);
+  const handleCheck = (plantId, isChecked) => {
+    const plant = plants.find(p => p.id === plantId);
+    if (!plant) return;
 
-  useEffect(() => {
-    localStorage.setItem('checkedPlants', JSON.stringify(checkedPlants));
-  }, [checkedPlants]);
+    const scientificName = plant.apiData.scientificName || plant.apiData.scientificNameWithoutAuthor;
+    let newCheckedPlants;
+    
+    if (isChecked) {
+      newCheckedPlants = [...checkedPlants, scientificName];
+    } else {
+      newCheckedPlants = checkedPlants.filter(name => name !== scientificName);
+    }
+    
+    setCheckedPlants(newCheckedPlants);
+    localStorage.setItem('checkedPlants', JSON.stringify(newCheckedPlants));
+  };
 
   // Filtrar plantas por búsqueda
   const filteredPlants = plants.filter(plant => {
@@ -291,19 +298,11 @@ export default function Home() {
               const score = plant.apiData.score ? (typeof plant.apiData.score === 'number' ? (plant.apiData.score * 100).toFixed(1) : plant.apiData.score) : null;
               const createdAt = plant.createdAt ? new Date(plant.createdAt) : null;
               return (
-                <PlantCard
+                <div
                   key={plant.id || index}
-                  plant={{
-                    scientificName: sciName,
-                    family,
-                    imageUrl,
-                    score,
-                    createdAt,
-                    ...plant.apiData,
-                    id: plant.id
-                  }}
+                  className="relative bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-200 hover:scale-105 hover:shadow-xl cursor-pointer"
                   onClick={e => {
-                    if (e?.target?.closest && e.target.closest('button')) return;
+                    if (e.target.closest('button')) return;
                     setSelectedPlant({
                       scientificName: sciName,
                       family,
@@ -314,7 +313,39 @@ export default function Home() {
                       id: plant.id
                     });
                   }}
-                />
+                >
+                  <button
+                    className={`absolute top-2 right-2 text-2xl focus:outline-none z-10 ${isChecked ? 'text-green-600' : 'text-gray-300'}`}
+                    title={isChecked ? 'Quitar de selección' : 'Seleccionar para el jardín'}
+                    onClick={e => {
+                      e.stopPropagation();
+                      handleCheck(plant.id, !isChecked);
+                    }}
+                  >
+                    <FaCheckCircle />
+                  </button>
+                  <div className="aspect-square relative">
+                    {imageUrl && imageUrl.length > 0 ? (
+                      <Image
+                        src={imageUrl[0]}
+                        alt={sciName}
+                        className="w-full h-full object-cover"
+                        width={400}
+                        height={400}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-green-50">
+                        <span className="text-gray-400">Sin imagen</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-semibold text-lg text-gray-800 mb-1 font-display">{sciName}</h3>
+                    <div className="mt-2 text-sm text-gray-500 font-sans">
+                      <p>Familia: {family || 'No especificada'}</p>
+                    </div>
+                  </div>
+                </div>
               );
             })}
           </div>
@@ -324,10 +355,22 @@ export default function Home() {
             plant={selectedPlant}
             onClose={() => setSelectedPlant(null)}
             onDelete={async () => {
-              if (!selectedPlant?.id) return;
-              const res = await fetch(`/api/plants/${selectedPlant.id}`, { method: 'DELETE' });
-              if (res.ok) {
-                setPlants(prev => prev.filter(p => p.id !== selectedPlant.id));
+              try {
+                const res = await fetch(`/api/plants/${selectedPlant.id}`, {
+                  method: 'DELETE'
+                });
+                if (res.ok) {
+                  setPlants(plants.filter(p => p.id !== selectedPlant.id));
+                  // Actualizar checkedPlants si la planta eliminada estaba seleccionada
+                  const scientificName = selectedPlant.apiData.scientificName || selectedPlant.apiData.scientificNameWithoutAuthor;
+                  if (checkedPlants.includes(scientificName)) {
+                    const newCheckedPlants = checkedPlants.filter(name => name !== scientificName);
+                    setCheckedPlants(newCheckedPlants);
+                    localStorage.setItem('checkedPlants', JSON.stringify(newCheckedPlants));
+                  }
+                }
+              } catch (error) {
+                console.error('Error al eliminar la planta:', error);
               }
             }}
           />

@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { FaCheckCircle } from 'react-icons/fa';
 import { Search, Loader, Upload } from 'lucide-react';
+import Image from 'next/image';
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -24,6 +25,8 @@ export default function PlantasPage() {
   const [isDragging, setIsDragging] = useState(false);
   const dropRef = useRef(null);
   const router = useRouter();
+  const [disabledSave, setDisabledSave] = useState(false);
+  const [showMinImagesWarning, setShowMinImagesWarning] = useState(false);
 
   useEffect(() => {
     const user = sessionStorage.getItem('user');
@@ -48,11 +51,6 @@ export default function PlantasPage() {
     }
   }, []);
 
-  // Guardar cambios en localStorage
-  useEffect(() => {
-    localStorage.setItem('checkedPlants', JSON.stringify(checkedPlants));
-  }, [checkedPlants]);
-
   const handleChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
     setFiles(prevFiles => {
@@ -68,6 +66,7 @@ export default function PlantasPage() {
   };
 
   const handleSavePlant = async (plant, idx) => {
+    setDisabledSave(true);
     // Guardar todas las imágenes subidas en base64
     const imageUrl = await Promise.all(files.map(fileToBase64)); // ahora es un array
     console.log('Imágenes convertidas a base64:', imageUrl.length);
@@ -118,7 +117,11 @@ export default function PlantasPage() {
   };
 
   const handleIdentify = async () => {
-    if (files.length === 0) return;
+    if (files.length < 3) {
+      setShowMinImagesWarning(true);
+      return;
+    }
+    setShowMinImagesWarning(false);
     setLoading(true);
     setResult(null);
     setError(null);
@@ -168,7 +171,8 @@ export default function PlantasPage() {
               <p className="text-gray-500 text-base text-center italic">Familia: {family}</p>
               <button
                 onClick={() => handleSavePlant({ scientificName, family, score }, idx)}
-                className="mt-4 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 text-base font-semibold"
+                className="mt-4 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 text-base font-semibold disabled:opacity-50"
+                disabled={disabledSave}
               >
                 Guardar
               </button>
@@ -201,11 +205,16 @@ export default function PlantasPage() {
                 className={`absolute top-2 right-2 text-2xl focus:outline-none ${isChecked ? 'text-green-600' : 'text-gray-300'}`}
                 title={isChecked ? 'Quitar de selección' : 'Seleccionar para el jardín'}
                 onClick={() => {
-                  setCheckedPlants(prev =>
-                    isChecked
-                      ? prev.filter(name => name !== plant.apiData.scientificName)
-                      : [...prev, plant.apiData.scientificName]
-                  );
+                  setCheckedPlants(prev => {
+                    let updated;
+                    if (isChecked) {
+                      updated = prev.filter(name => name !== plant.apiData.scientificName);
+                    } else {
+                      updated = [...prev, plant.apiData.scientificName];
+                    }
+                    localStorage.setItem('checkedPlants', JSON.stringify(updated));
+                    return updated;
+                  });
                 }}
               >
                 <FaCheckCircle />
@@ -272,18 +281,26 @@ export default function PlantasPage() {
       <div className="w-full max-w-2xl flex justify-center gap-12 mb-8">
         {files.map((file, idx) => (
           <div key={idx} className="group cursor-pointer" onClick={() => handleRemove(idx)} title="Quitar imagen">
-            <img
+            <Image
               src={URL.createObjectURL(file)}
               alt={file.name}
               className="w-32 h-32 object-cover rounded border border-gray-300 shadow-md group-hover:opacity-70 transition-opacity duration-150"
+              width={128}
+              height={128}
+              unoptimized
             />
           </div>
         ))}
       </div>
+      {showMinImagesWarning && (
+        <div className="mb-4 px-4 py-2 rounded border text-green-900 bg-green-100 border-green-700 font-semibold">
+          Debes adjuntar al menos 3 imágenes para identificar la planta.
+        </div>
+      )}
       {files.length > 0 && (
         <button
           onClick={handleIdentify}
-          disabled={files.length < 3 || loading}
+          disabled={loading}
           className="bg-green-600 text-white px-6 py-2 rounded shadow hover:bg-green-700 disabled:opacity-50"
         >
           {loading ? (

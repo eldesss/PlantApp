@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 
 export async function DELETE(req, { params }) {
-  const { id } = params;
+  const { id } = await params;
   if (!id) {
     return new Response(JSON.stringify({ error: 'ID requerido' }), { status: 400 });
   }

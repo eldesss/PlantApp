@@ -12,6 +12,9 @@ export async function GET(req) {
             imageUrl: true,
             apiData: true
           }
+        },
+        favoritedBy: {
+          select: { id: true }
         }
       }
     });

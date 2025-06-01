@@ -1,3 +1,6 @@
+import { FaCheck } from 'react-icons/fa';
+import Image from 'next/image';
+
 export default function PlantCard({ plant, onClick }) {
   const { scientificName, family, imageUrl} = plant;
   let previewImage = null;
@@ -11,15 +14,18 @@ export default function PlantCard({ plant, onClick }) {
   }
   return (
     <div
-      className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-200 hover:scale-105 hover:shadow-xl cursor-pointer"
+      className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-200 hover:scale-105 hover:shadow-xl cursor-pointer relative"
       onClick={onClick}
     >
       <div className="aspect-square relative">
         {previewImage ? (
-          <img
+          <Image
             src={previewImage}
             alt={scientificName}
             className="w-full h-full object-cover"
+            width={400}
+            height={400}
+            unoptimized
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-green-50">
