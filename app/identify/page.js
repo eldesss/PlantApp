@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { FaCheckCircle } from 'react-icons/fa';
 import { Search, Loader, Upload } from 'lucide-react';
 import Image from 'next/image';
+import { optimizarImagenFrontend } from "@/utils/optimizeImageFrontend";
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -126,8 +127,14 @@ export default function PlantasPage() {
     setResult(null);
     setError(null);
     try {
+      // Optimizar imágenes antes de enviarlas
+      const optimizedFiles = await Promise.all(
+        files.map(file => optimizarImagenFrontend(file, 1024, 1024, 0.8))
+      );
       const formData = new FormData();
-      files.forEach((file) => formData.append('images', file));
+      optimizedFiles.forEach((blob, i) => {
+        formData.append('images', new File([blob], files[i].name, { type: 'image/jpeg' }));
+      });
       files.forEach(() => formData.append('organs', 'auto'));
       const res = await fetch('/api/plantnet', {
         method: 'POST',

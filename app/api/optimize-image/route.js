@@ -1,5 +1,7 @@
 import sharp from 'sharp';
 
+export const maxRequestBodySize = '10mb';
+
 export async function POST(req) {
   try {
     const data = await req.json();
