@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { FaTrash } from 'react-icons/fa';
 
-export default function PlantModal({ plant, onClose, onDelete }) {
+export default function PlantModal({ plant, onClose, onDelete, showDeleteButton = true }) {
   const [show, setShow] = useState(false);
   const [selectedImg, setSelectedImg] = useState(0);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -48,7 +48,7 @@ export default function PlantModal({ plant, onClose, onDelete }) {
 
   // Lógica para el color del porcentaje
   let scoreColor = 'text-green-700';
-  if (plant.score) {
+  if (plant && plant.score) {
     const scoreNum = parseFloat(plant.score);
     if (scoreNum < 40) scoreColor = 'text-red-600';
     else if (scoreNum < 70) scoreColor = 'text-yellow-600';
@@ -161,19 +161,20 @@ export default function PlantModal({ plant, onClose, onDelete }) {
           {plant.createdAt && <div><span className="font-semibold text-gray-800">Añadido:</span> <span className="text-gray-700 font-sans">{new Date(plant.createdAt).toLocaleDateString()}</span></div>}
         </div>
         <div className="absolute right-8 bottom-8">
-          <button
-            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow"
-            title="Eliminar planta"
-            onClick={e => {
-              e.stopPropagation();
-              setShowDeleteConfirm(true);
-            }}
-          >
-            <FaTrash /> Eliminar planta
-          </button>
+          {showDeleteButton && (
+            <button
+              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow"
+              title="Eliminar planta"
+              onClick={e => {
+                e.stopPropagation();
+                setShowDeleteConfirm(true);
+              }}
+            >
+              <FaTrash /> Eliminar planta
+            </button>
+          )}
         </div>
-        {/* Confirmación personalizada para eliminar */}
-        {showDeleteConfirm && (
+        {showDeleteButton && showDeleteConfirm && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-white/60 backdrop-blur-sm transition-opacity duration-300">
             <div className="bg-white rounded-lg shadow-lg p-6 max-w-xs w-full flex flex-col items-center">
               <p className="mb-4 text-lg text-gray-800 text-center">¿Seguro que quieres eliminar esta planta?</p>

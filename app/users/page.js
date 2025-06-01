@@ -48,30 +48,11 @@ export default function UsuariosPage() {
     setFavoriteStates(favs);
   }, [usuarios, currentUserId]);
 
-  const handleToggleFavorite = async (userId) => {
-    if (!currentUserId) return;
-    const isFav = favoriteStates[userId];
-    setFavoriteStates(prev => ({ ...prev, [userId]: !isFav }));
-    try {
-      const res = await fetch(`/api/users/${userId}/favorite`, {
-        method: isFav ? 'DELETE' : 'POST',
-        headers: { 'x-user-id': currentUserId }
-      });
-      if (!res.ok) throw new Error('Error al actualizar favorito');
-      const resUsers = await fetch('/api/users');
-      if (resUsers.ok) {
-        const data = await resUsers.json();
-        setUsuarios(data);
-      }
-    } catch (e) {
-      setFavoriteStates(prev => ({ ...prev, [userId]: isFav }));
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100 flex flex-col items-center py-10">
-      <h1 className="text-3xl font-bold text-green-800 mb-8">Descubrir</h1>
-      <div className="flex justify-center mb-8">
+      <h1 className="text-3xl font-bold text-green-800 mb-8 font-leafy">Descubrir</h1>
+      <div className="flex justify-center mb-8 w-100">
         <SearchBar
           value={search}
           onChange={e => setSearch(e.target.value)}
@@ -85,6 +66,19 @@ export default function UsuariosPage() {
       )}
       {error && <div className="text-red-600">{error}</div>}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-6xl justify-center">
+        {usuarios
+          .filter(usuario => usuario.username.toLowerCase().includes(search.toLowerCase()))
+          .filter(usuario => usuario.id !== currentUserId)
+          .sort((a, b) => {
+            const favA = a.favoritedBy?.length || 0;
+            const favB = b.favoritedBy?.length || 0;
+            if (favB !== favA) return favB - favA;
+            const plantasA = a.plants?.length || 0;
+            const plantasB = b.plants?.length || 0;
+            return plantasB - plantasA;
+          }).length === 0 && !loading && !error && (
+            <div className="col-span-full text-center text-gray-500 text-lg mt-8">No hay usuarios para mostrar.</div>
+        )}
         {usuarios
           .filter(usuario => usuario.username.toLowerCase().includes(search.toLowerCase()))
           .filter(usuario => usuario.id !== currentUserId)
