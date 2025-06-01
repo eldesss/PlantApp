@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import PlantCard from "@/components/plants/PlantCard";
+import PlantCard from "@/components/PlantCard";
 import { DotLoader } from "react-spinners";
 import PlantModal from "@/components/PlantModal";
 import FavoriteButton from "@/components/FavoriteButton";

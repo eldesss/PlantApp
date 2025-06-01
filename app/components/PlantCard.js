@@ -1,8 +1,8 @@
-import { FaCheck } from 'react-icons/fa';
 import Image from 'next/image';
+import { FaCheckCircle } from 'react-icons/fa';
 
-export default function PlantCard({ plant, onClick }) {
-  const { scientificName, family, imageUrl} = plant;
+export default function PlantCard({ plant, onClick, showCheck = false, checked = false, onCheck }) {
+  const { scientificName, family, imageUrl } = plant;
   let previewImage = null;
   if (imageUrl && Array.isArray(imageUrl) && imageUrl.length > 0) {
     previewImage = imageUrl[0];
@@ -17,6 +17,18 @@ export default function PlantCard({ plant, onClick }) {
       className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-200 hover:scale-105 hover:shadow-xl cursor-pointer relative"
       onClick={onClick}
     >
+      {showCheck && (
+        <button
+          className={`absolute top-2 right-2 text-2xl focus:outline-none z-10 ${checked ? 'text-green-600' : 'text-gray-300'}`}
+          title={checked ? 'Quitar de selección' : 'Seleccionar para el jardín'}
+          onClick={e => {
+            e.stopPropagation();
+            if (onCheck) onCheck(!checked);
+          }}
+        >
+          <FaCheckCircle />
+        </button>
+      )}
       <div className="aspect-square relative">
         {previewImage ? (
           <Image

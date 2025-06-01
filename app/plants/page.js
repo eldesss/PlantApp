@@ -3,10 +3,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaTrash, FaCheckCircle } from 'react-icons/fa';
+import {FaCheckCircle } from 'react-icons/fa';
 import { DotLoader } from "react-spinners";
 import SearchBar from "@/components/SearchBar";
 import PlantModal from '@/components/PlantModal';
+import PlantCard from '@/components/PlantCard';
 
 export default function Home() {
   const [plants, setPlants] = useState([]);
@@ -95,12 +96,9 @@ export default function Home() {
               const score = plant.apiData.score ? (typeof plant.apiData.score === 'number' ? (plant.apiData.score * 100).toFixed(1) : plant.apiData.score) : null;
               const createdAt = plant.createdAt ? new Date(plant.createdAt) : null;
               return (
-                <div
-                  key={plant.id || index}
-                  className="relative bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-200 hover:scale-105 hover:shadow-xl cursor-pointer"
-                  onClick={e => {
-                    if (e.target.closest('button')) return;
-                    setSelectedPlant({
+                <div key={plant.id || index} className="max-w-sm w-full mx-auto">
+                  <PlantCard
+                    plant={{
                       scientificName: sciName,
                       family,
                       imageUrl,
@@ -108,40 +106,20 @@ export default function Home() {
                       createdAt,
                       ...plant.apiData,
                       id: plant.id
-                    });
-                  }}
-                >
-                  <button
-                    className={`absolute top-2 right-2 text-2xl focus:outline-none z-10 ${isChecked ? 'text-green-600' : 'text-gray-300'}`}
-                    title={isChecked ? 'Quitar de selección' : 'Seleccionar para el jardín'}
-                    onClick={e => {
-                      e.stopPropagation();
-                      handleCheck(plant.id, !isChecked);
                     }}
-                  >
-                    <FaCheckCircle />
-                  </button>
-                  <div className="aspect-square relative">
-                    {imageUrl && imageUrl.length > 0 ? (
-                      <Image
-                        src={imageUrl[0]}
-                        alt={sciName}
-                        className="w-full h-full object-cover"
-                        width={400}
-                        height={400}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-green-50">
-                        <span className="text-gray-400">Sin imagen</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-lg text-gray-800 mb-1 font-display">{sciName}</h3>
-                    <div className="mt-2 text-sm text-gray-500 font-sans">
-                      <p>Familia: {family || 'No especificada'}</p>
-                    </div>
-                  </div>
+                    showCheck={true}
+                    checked={isChecked}
+                    onCheck={nuevoValor => handleCheck(plant.id, nuevoValor)}
+                    onClick={() => setSelectedPlant({
+                      scientificName: sciName,
+                      family,
+                      imageUrl,
+                      score,
+                      createdAt,
+                      ...plant.apiData,
+                      id: plant.id
+                    })}
+                  />
                 </div>
               );
             })}
