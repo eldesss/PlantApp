@@ -14,11 +14,18 @@ export async function GET(req) {
           }
         },
         favoritedBy: {
-          select: { id: true }
+          select: {
+            user: { select: { id: true, username: true } }
+          }
         }
       }
     });
-    return new Response(JSON.stringify(usuarios), {
+    // Mapear favoritedBy para devolver solo los usuarios únicos
+    const usuariosConFavoritos = usuarios.map(u => ({
+      ...u,
+      favoritedBy: u.favoritedBy.map(fav => fav.user)
+    }));
+    return new Response(JSON.stringify(usuariosConFavoritos), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });

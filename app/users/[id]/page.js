@@ -13,6 +13,7 @@ export default function UsuarioDetallePage() {
   const [error, setError] = useState(null);
   const [selectedPlant, setSelectedPlant] = useState(null);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [favLoading, setFavLoading] = useState(false);
 
   useEffect(() => {
     const user = sessionStorage.getItem('user');
@@ -34,6 +35,7 @@ export default function UsuarioDetallePage() {
         setError(err.message);
       } finally {
         setLoading(false);
+        setFavLoading(false);
       }
     }
     if (id) fetchUsuario();
@@ -58,12 +60,37 @@ export default function UsuarioDetallePage() {
                 userId={usuario.id}
                 favoritedBy={usuario.favoritedBy}
                 currentUserId={currentUserId}
+                loading={favLoading}
+                setLoading={setFavLoading}
                 onChange={async () => {
-                  const res = await fetch(`/api/users/${usuario.id}`);
-                  if (res.ok) {
-                    const data = await res.json();
-                    setUsuario(data);
+                  // Estado optimista
+                  const prevIsFav = usuario.favoritedBy.some(f => f.id === currentUserId);
+                  let newFavoritedBy;
+                  if (prevIsFav) {
+                    newFavoritedBy = usuario.favoritedBy.filter(f => f.id !== currentUserId);
+                  } else {
+                    newFavoritedBy = [...usuario.favoritedBy, { id: currentUserId, username: "Tú" }];
                   }
+                  setUsuario({ ...usuario, favoritedBy: newFavoritedBy });
+                
+                  // POST/DELETE real
+                  await fetch(`/api/users/${usuario.id}/favorite`, {
+                    method: prevIsFav ? 'DELETE' : 'POST',
+                    headers: { 'x-user-id': currentUserId }
+                  });
+                
+                  // GET para sincronizar el estado real
+                  for (let i = 0; i < 5; i++) {
+                    const res = await fetch(`/api/users/${usuario.id}`);
+                    if (res.ok) {
+                      const data = await res.json();
+                      setUsuario(data);
+                      const newIsFav = data.favoritedBy.some(f => f.id === currentUserId);
+                      if (newIsFav !== prevIsFav) break;
+                      await new Promise(r => setTimeout(r, 200));
+                    }
+                  }
+                  setFavLoading(false);
                 }}
               />
             </div>
@@ -93,7 +120,7 @@ export default function UsuarioDetallePage() {
             )}
           </div>
           {selectedPlant && (
-            <PlantModal plant={selectedPlant} onClose={() => setSelectedPlant(null)} />
+            <PlantModal plant={selectedPlant} onClose={() => setSelectedPlant(null)} showDeleteButton={false} />
           )}
         </>
       )}

@@ -17,14 +17,17 @@ export async function GET(req, context) {
           }
         },
         favoritedBy: {
-          select: { id: true }
+          select: {
+            user: { select: { id: true, username: true } }
+          }
         }
       }
     });
     if (!user) {
       return new Response(JSON.stringify({ error: 'Usuario no encontrado' }), { status: 404 });
     }
-    return new Response(JSON.stringify(user), {
+    const favoritedByUsers = user.favoritedBy.map(fav => fav.user);
+    return new Response(JSON.stringify({ ...user, favoritedBy: favoritedByUsers }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
