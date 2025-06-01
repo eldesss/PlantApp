@@ -81,10 +81,10 @@ export default function UsuarioDetallePage() {
                 
                   // GET para sincronizar el estado real
                   for (let i = 0; i < 5; i++) {
-                    const res = await fetch(`/api/users/${usuario.id}`);
-                    if (res.ok) {
-                      const data = await res.json();
-                      setUsuario(data);
+                  const res = await fetch(`/api/users/${usuario.id}`);
+                  if (res.ok) {
+                    const data = await res.json();
+                    setUsuario(data);
                       const newIsFav = data.favoritedBy.some(f => f.id === currentUserId);
                       if (newIsFav !== prevIsFav) break;
                       await new Promise(r => setTimeout(r, 200));

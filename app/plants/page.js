@@ -2,8 +2,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
-import {FaCheckCircle } from 'react-icons/fa';
 import { DotLoader } from "react-spinners";
 import SearchBar from "@/components/SearchBar";
 import PlantModal from '@/components/PlantModal';

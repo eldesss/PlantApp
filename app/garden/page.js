@@ -30,7 +30,9 @@ export default function MiJardin() {
       .then(data => {
         const userPlants = data.filter(p => p.userId === userId);
         const checked = JSON.parse(localStorage.getItem('checkedPlants') || '[]');
-        const checkedPlants = userPlants.filter(p => checked.includes(p.apiData.scientificName));
+        const checkedPlants = userPlants.filter(p =>
+          checked.includes(p.apiData.scientificName || p.apiData.scientificNameWithoutAuthor)
+        );
         setPlants(userPlants);
         setUserPlants(checkedPlants);
         setLoading(false);

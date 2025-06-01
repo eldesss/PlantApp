@@ -117,7 +117,7 @@ export default function PlantModal({ plant, onClose, onDelete, showDeleteButton 
               </button>
             )}
           </div>
-        )}
+          )}
         {/* Miniaturas */}
         {imagesToShowFinal.length > 1 && (
           <div className="flex gap-4 justify-center mb-8 mt-2">
