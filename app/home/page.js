@@ -151,7 +151,7 @@ export default function LandingPage() {
               </Link>
               <div className="text-left">
                 <motion.h3 variants={fadeInUp} className="font-semibold text-green-700 mb-1">2. Colecciona plantas</motion.h3>
-                <motion.p variants={fadeInUp} className="text-gray-700 text-sm">En el apartado <b>"Mis plantas"</b> tendrás acceso a toda la información, fotos y detalles de las plantas que hayas identificado. Podrás ver su nombre científic, familia, procentaje de acierto y la fecha de identificación.</motion.p>
+                <motion.p variants={fadeInUp} className="text-gray-700 text-sm">En el apartado <b>&quot;Mis plantas&quot;</b> tendrás acceso a toda la información, fotos y detalles de las plantas que hayas identificado. Podrás ver su nombre científic, familia, procentaje de acierto y la fecha de identificación.</motion.p>
               </div>
             </motion.div>
             <motion.div variants={fadeInUp} whileHover={{ scale: 1.04, boxShadow: '0 8px 32px 0 rgba(34,197,94,0.15)' }} className="bg-white rounded-xl shadow-lg p-5 md:p-6 flex flex-col md:flex-row items-center md:items-start md:w-full transition-all duration-300">
@@ -164,7 +164,7 @@ export default function LandingPage() {
               </Link>
               <div className="text-left">
                 <motion.h3 variants={fadeInUp} className="font-semibold text-green-700 mb-1">3. Crea jardines</motion.h3>
-                <motion.p variants={fadeInUp} className="text-gray-700 text-sm">En la sección de <b>"Jardín"</b> podrás diseñar tu propio espacio verde. Selecciona las plantas que quieras utilizar desde "Mis plantas", organiza su disposición y visualiza cómo quedará tu jardín antes de llevarlo a la realidad.</motion.p>
+                <motion.p variants={fadeInUp} className="text-gray-700 text-sm">En la sección de <b>&quot;Jardín&quot;</b> podrás diseñar tu propio espacio verde. Selecciona las plantas que quieras utilizar desde &quot;Mis plantas&quot;, organiza su disposición y visualiza cómo quedará tu jardín antes de llevarlo a la realidad.</motion.p>
               </div>
             </motion.div>
             <motion.div variants={fadeInUp} whileHover={{ scale: 1.04, boxShadow: '0 8px 32px 0 rgba(34,197,94,0.15)' }} className="bg-white rounded-xl shadow-lg p-5 md:p-6 flex flex-col md:flex-row items-center md:items-start md:w-full transition-all duration-300">
@@ -177,7 +177,7 @@ export default function LandingPage() {
               </Link>
               <div className="text-left">
                 <motion.h3 variants={fadeInUp} className="font-semibold text-green-700 mb-1">4. ¡Descubre!</motion.h3>
-                <motion.p variants={fadeInUp} className="text-gray-700 text-sm">En <b>"Descubrir"</b> podrás explorar las plantas identificadas por otros usuarios, ver fotos, aprender curiosidades y ampliar tus conocimientos sobre el mundo vegetal. ¡Inspírate y conecta con la comunidad!</motion.p>
+                <motion.p variants={fadeInUp} className="text-gray-700 text-sm">En <b>&quot;Descubrir&quot;</b> podrás explorar las plantas identificadas por otros usuarios, ver fotos, aprender curiosidades y ampliar tus conocimientos sobre el mundo vegetal. ¡Inspírate y conecta con la comunidad!</motion.p>
               </div>
             </motion.div>
           </motion.div>
