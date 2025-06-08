@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { DotLoader } from "react-spinners";
 import SearchBar from "../components/SearchBar";
 import FavoriteButton from "@/components/FavoriteButton";
+import { motion } from 'framer-motion';
 
 export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState([]);
@@ -51,21 +52,43 @@ export default function UsuariosPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100 flex flex-col items-center py-10">
-      <h1 className="text-3xl font-bold text-green-800 mb-8 font-leafy">Descubrir</h1>
-      <div className="flex justify-center mb-8 w-100">
+      <motion.h1
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+        className="text-3xl font-bold text-green-800 mb-8 font-leafy"
+      >
+        Descubrir
+      </motion.h1>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.2 }}
+        className="flex justify-center mb-8 w-100"
+      >
         <SearchBar
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Buscar usuario..."
         />
-      </div>
+      </motion.div>
       {loading && (
         <div className="flex justify-center items-center h-32mt-70 m-60">
           <DotLoader color="#22c55e" size={60} />
         </div>
       )}
       {error && <div className="text-red-600">{error}</div>}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-6xl justify-center">
+      <motion.div
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-6xl justify-center"
+        initial="hidden"
+        animate="show"
+        variants={{
+          hidden: {},
+          show: {
+            transition: { staggerChildren: 0.12 }
+          }
+        }}
+      >
         {usuarios
           .filter(usuario => usuario.username.toLowerCase().includes(search.toLowerCase()))
           .filter(usuario => usuario.id !== currentUserId)
@@ -91,9 +114,19 @@ export default function UsuariosPage() {
             return plantasB - plantasA;
           })
           .map((usuario) => (
-          <div
+          <motion.div
             key={usuario.username}
-            className="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center border border-gray-200 w-full transition-transform hover:scale-105 hover:shadow-xl cursor-pointer relative"
+            variants={{
+              hidden: { opacity: 0, scale: 0.95, y: 30 },
+              show: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.5 } }
+            }}
+            whileHover={{
+              scale: 1.10,
+              y: -10,
+              boxShadow: '0 12px 40px 0 rgba(34,197,94,0.18)',
+              borderColor: '#22c55e'
+            }}
+            transition={{ type: 'spring', stiffness: 300, damping: 123123 }}            className="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center border-2 border-gray-200 w-full transition-all duration-300 cursor-pointer relative"
             onClick={() => router.push(`/users/${usuario.id}`)}
           >
             <span className="text-2xl font-extrabold text-green-700 mb-4 text-center tracking-wide capitalize drop-shadow-sm">{usuario.username}</span>
@@ -126,9 +159,9 @@ export default function UsuariosPage() {
               />
             </div>
             <span className="text-sm text-green-800 font-medium mt-2">{usuario.plants ? usuario.plants.length : 0} planta{usuario.plants && usuario.plants.length === 1 ? '' : 's'}</span>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 }

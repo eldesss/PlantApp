@@ -10,7 +10,12 @@ export default function PlantModal({ plant, onClose, onDelete, showDeleteButton 
   useEffect(() => {
     setShow(true);
     setSelectedImg(0);
-    return () => setShow(false);
+    // Prevenir scroll del body cuando el modal está abierto
+    document.body.style.overflow = 'hidden';
+    return () => {
+      setShow(false);
+      document.body.style.overflow = '';
+    };
   }, [plant]);
 
   // Obtener las imágenes del array imageUrl (Json)
@@ -73,8 +78,14 @@ export default function PlantModal({ plant, onClose, onDelete, showDeleteButton 
       />
       <div
         className={`relative bg-green-50 rounded-lg shadow-2xl border border-green-200 w-full max-w-xl md:max-w-2xl lg:max-w-3xl p-6 md:p-10 max-h-[90vh] overflow-y-auto transition-all duration-300 ${show ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         onClick={e => e.stopPropagation()}
       >
+        <style jsx>{`
+          div::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
         <button
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-3xl"
           onClick={onClose}

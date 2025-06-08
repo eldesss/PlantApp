@@ -5,6 +5,7 @@ import PlantCard from "@/components/PlantCard";
 import { DotLoader } from "react-spinners";
 import PlantModal from "@/components/PlantModal";
 import FavoriteButton from "@/components/FavoriteButton";
+import { motion } from "framer-motion";
 
 export default function UsuarioDetallePage() {
   const { id } = useParams();
@@ -44,18 +45,28 @@ export default function UsuarioDetallePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100 flex flex-col items-center py-10">
       {loading && (
-        <div className="flex justify-center items-center h-32 mt-70">
-          <DotLoader color="#22c55e" size={60} />
+        <div className="flex justify-center items-center h-full mt-64">
+          <DotLoader color="#16a34a" size={60} />
         </div>
       )}
       {error && <div className="text-red-600">{error}</div>}
       {!loading && !error && usuario && (
         <>
-          <h1 className="text-4xl font-extrabold text-green-800 mb-4 text-center drop-shadow-sm capitalize">
+          <motion.h1
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            className="text-4xl font-bold text-green-800 mb-6 text-center font-display font-leafy"
+          >
             {usuario.username}
-          </h1>
+          </motion.h1>
           {currentUserId && usuario.id !== currentUserId && (
-            <div className="flex justify-center mb-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="flex justify-center mb-4"
+            >
               <FavoriteButton
                 userId={usuario.id}
                 favoritedBy={usuario.favoritedBy}
@@ -93,12 +104,28 @@ export default function UsuarioDetallePage() {
                   setFavLoading(false);
                 }}
               />
-            </div>
+            </motion.div>
           )}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 w-full max-w-6xl">
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 w-full max-w-6xl"
+            initial="hidden"
+            animate="show"
+            variants={{
+              hidden: {},
+              show: { transition: { staggerChildren: 0.10 } }
+            }}
+          >
             {usuario.plants && usuario.plants.length > 0 ? (
               usuario.plants.map((planta, idx) => (
-                <div key={planta.id || idx} className="max-w-sm w-full mx-auto">
+                <motion.div
+                  key={planta.id || idx}
+                  variants={{
+                    hidden: { opacity: 0, scale: 0.95, y: 30 },
+                    show: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.5 } }
+                  }}
+                  whileHover={{ scale: 1.07, boxShadow: '0 8px 32px 0 rgba(34,197,94,0.10)' }}
+                  className="max-w-sm w-full mx-auto transition-all duration-300"
+                >
                   <PlantCard
                     plant={{
                       scientificName: planta.apiData?.scientificName || "Sin nombre",
@@ -113,12 +140,19 @@ export default function UsuarioDetallePage() {
                     })}
                     showCheck={false}
                   />
-                </div>
+                </motion.div>
               ))
             ) : (
-              <span className="text-gray-500">Este usuario no tiene plantas.</span>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="text-center text-gray-600 font-sans"
+              >
+                <p className="text-lg mt-56">Este usuario no tiene plantas.</p>
+              </motion.div>
             )}
-          </div>
+          </motion.div>
           {selectedPlant && (
             <PlantModal plant={selectedPlant} onClose={() => setSelectedPlant(null)} showDeleteButton={false} />
           )}

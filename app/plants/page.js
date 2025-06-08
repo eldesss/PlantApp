@@ -6,6 +6,7 @@ import { DotLoader } from "react-spinners";
 import SearchBar from "@/components/SearchBar";
 import PlantModal from '@/components/PlantModal';
 import PlantCard from '@/components/PlantCard';
+import { motion } from 'framer-motion';
 
 export default function Home() {
   const [plants, setPlants] = useState([]);
@@ -65,14 +66,26 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100">
       <main className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-green-800 mb-6 text-center font-display font-leafy">Mis Plantas</h1>
-        <div className="flex justify-center mb-8">
+        <motion.h1
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          className="text-4xl font-bold text-green-800 mb-6 text-center font-display font-leafy"
+        >
+          Mis Plantas
+        </motion.h1>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.2 }}
+          className="flex justify-center mb-8"
+        >
           <SearchBar
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por nombre científico o familia..."
           />
-        </div>
+        </motion.div>
         {loading ? (
           <div className="flex justify-center items-center h-full mt-64">
             <DotLoader color="#16a34a" size={60} />
@@ -83,7 +96,15 @@ export default function Home() {
             <p className="mt-2">Ve a la página de <Link href="/identify" className="text-green-600 hover:text-green-800 underline">identificación</Link> para agregar plantas a tu biblioteca.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 max-w-[2000px] mx-auto">
+          <motion.div
+            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 max-w-[2000px] mx-auto"
+            initial="hidden"
+            animate="show"
+            variants={{
+              hidden: {},
+              show: { transition: { staggerChildren: 0.10 } }
+            }}
+          >
             {filteredPlants.map((plant, index) => {
               const sciName = plant.apiData.scientificName || plant.apiData.scientificNameWithoutAuthor || '';
               const family = plant.apiData.family || '';
@@ -94,7 +115,15 @@ export default function Home() {
               const score = plant.apiData.score ? (typeof plant.apiData.score === 'number' ? (plant.apiData.score * 100).toFixed(1) : plant.apiData.score) : null;
               const createdAt = plant.createdAt ? new Date(plant.createdAt) : null;
               return (
-                <div key={plant.id || index} className="max-w-sm w-full mx-auto">
+                <motion.div
+                  key={plant.id || index}
+                  variants={{
+                    hidden: { opacity: 0, scale: 0.95, y: 30 },
+                    show: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.5 } }
+                  }}
+                  whileHover={{ scale: 1.07, boxShadow: '0 8px 32px 0 rgba(34,197,94,0.10)' }}
+                  className="max-w-sm w-full mx-auto transition-all duration-300"
+                >
                   <PlantCard
                     plant={{
                       scientificName: sciName,
@@ -118,10 +147,10 @@ export default function Home() {
                       id: plant.id
                     })}
                   />
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         )}
         {selectedPlant && (
           <PlantModal

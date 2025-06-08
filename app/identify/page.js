@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { FaCheckCircle } from 'react-icons/fa';
 import { Search, Loader, Upload } from 'lucide-react';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -165,9 +166,9 @@ export default function PlantasPage() {
           const scientificName = species.scientificNameWithoutAuthor || species.scientificName;
           const family = species.family?.scientificName || 'No especificada';
           return (
-            <div key={idx} className="bg-[#f5f7f9] border border-[#d1d5db] rounded-xl shadow p-6 flex flex-col items-center transition-colors duration-200 hover:bg-[#e9ecef]">
+            <div key={idx} className="bg-[#f5f7f9] border border-[#d1d5db] rounded-xl shadow p-6 z-1 flex flex-col items-center transition-colors duration-200 hover:bg-[#e9ecef]">
               <h3 className="text-xl font-bold text-green-800 mb-2 text-center">{scientificName}</h3>
-              <p className="text-gray-800 text-lg mb-1 text-center">Score: <span className="font-bold">{score}%</span></p>
+              <p className="text-gray-800 text-lg mb-1 text-center">Acierto: <span className="font-bold">{score}%</span></p>
               <p className="text-gray-500 text-base text-center italic">Familia: {family}</p>
               <button
                 onClick={() => handleSavePlant({ scientificName, family, score }, idx)}
@@ -263,9 +264,54 @@ export default function PlantasPage() {
       onDragLeave={handleDragLeave}
       className={`min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-green-50 to-green-100 transition-all duration-200 ${isDragging ? 'ring-4 ring-green-400 bg-green-100' : ''}`}
     >
-      <h1 className="text-3xl font-bold text-green-800 mb-6">Identificar Plantas</h1>
-      <label className="cursor-pointer bg-green-700 text-white px-6 py-2 rounded shadow hover:bg-green-800 mb-4 font-semibold flex items-center gap-2">
-      <Upload className="w-5 h-5 mr-2" />
+      <div className="relative w-full flex flex-col items-center">
+        {/* Girasoles animados en posición absoluta detrás del título */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 0.5, y: 0 }}
+          transition={{ duration: 1 }}
+          className="absolute left-0 overflow-hidden top-full -mt-80 flex gap-8 z-0 pointer-events-none hidden [@media(min-width:1325px)]:flex"
+        >
+          <motion.img
+            src="/svg/girasol1.svg"
+            alt="Girasol 1"
+            className="w-160 h-160"
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 200, ease: 'linear' }}
+            style={{ originX: 0.5, originY: 0.5 }}
+          />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 0.5, y: 0 }}
+          transition={{ duration: 1, delay: 0.2 }}
+          className="absolute right-0 overflow-hidden top-full -mt-80 flex gap-8 z-0 pointer-events-none hidden [@media(min-width:1325px)]:flex"
+        >
+          <motion.img
+            src="/svg/girasol1.svg"
+            alt="Girasol 1"
+            className="w-160 h-160"
+            animate={{ rotate: -360 }}
+            transition={{ repeat: Infinity, duration: 200, ease: 'linear' }}
+            style={{ originX: 0.5, originY: 0.5 }}
+          />
+        </motion.div>
+        <motion.h1
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          className="text-4xl font-bold text-green-800 mb-6 relative z-10 font-leafy"
+        >
+          Identificar Plantas
+        </motion.h1>
+      </div>
+      <motion.label
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.2 }}
+        className="cursor-pointer bg-green-700 text-white px-6 py-2 rounded z-10 shadow hover:bg-green-800 mb-4 font-semibold flex items-center gap-2"
+      >
+        <Upload className="w-5 h-5 mr-2" />
         Adjuntar imágenes
         <input
           type="file"
@@ -274,46 +320,87 @@ export default function PlantasPage() {
           onChange={handleChange}
           className="hidden"
         />
-      </label>
+      </motion.label>
       {isDragging && (
-        <div className="mb-4 text-green-700 font-semibold animate-pulse">Suelta aquí tus imágenes...</div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          className="mb-4 text-green-700 font-semibold z-10 animate-pulse"
+        >Suelta aquí tus imágenes...</motion.div>
       )}
-      <div className="w-full max-w-2xl flex justify-center gap-12 mb-8">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="w-full max-w-2xl flex justify-center gap-12 mb-8 z-10"
+      >
         {files.map((file, idx) => (
-          <div key={idx} className="group cursor-pointer" onClick={() => handleRemove(idx)} title="Quitar imagen">
+          <motion.div
+            key={idx}
+            whileHover={{ scale: 1.08 }}
+            className="group cursor-pointer"
+            onClick={() => handleRemove(idx)}
+            title="Quitar imagen"
+          >
             <Image
               src={URL.createObjectURL(file)}
               alt={file.name}
-              className="w-32 h-32 object-cover rounded border border-gray-300 shadow-md group-hover:opacity-70 transition-opacity duration-150"
+              className="w-32 h-32 object-cover rounded border border-gray-300 shadow-md z-10 group-hover:opacity-70 transition-opacity duration-150"
               width={128}
               height={128}
               unoptimized
             />
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
       {showMinImagesWarning && (
-        <div className="mb-4 px-4 py-2 rounded border text-green-900 bg-green-100 border-green-700 font-semibold">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          className="mb-4 px-4 py-2 rounded border text-green-900 bg-green-100 z-10 border-green-700 font-semibold"
+        >
           Debes adjuntar al menos 3 imágenes para identificar la planta.
-        </div>
+        </motion.div>
       )}
       {files.length > 0 && (
-        <button
+        <motion.button
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          whileHover={{ scale: 1.07 }}
           onClick={handleIdentify}
           disabled={loading}
-          className="bg-green-600 text-white px-6 py-2 rounded shadow hover:bg-green-700 disabled:opacity-50"
+          className="bg-green-600 text-white px-6 py-2 rounded z-10 shadow hover:bg-green-700 disabled:opacity-50"
         >
           {loading ? (
             <div className="flex justify-center items-center">
               <Loader className="w-8 h-8 text-green-700 animate-spin" />
             </div>
           ) : 'Identificar Planta'}
-        </button>
+        </motion.button>
       )}
       {error && (
-        <div className="mt-4 text-red-600 font-semibold">{error}</div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          className="mt-4 text-red-600 font-semibold z-10"
+        >{error}</motion.div>
       )}
-      {result && renderResults()}
+      {result && (
+        <motion.div
+          initial="hidden"
+          animate="show"
+          variants={{
+            hidden: {},
+            show: { transition: { staggerChildren: 0.15 } }
+          }}
+        >
+          {renderResults()}
+        </motion.div>
+      )}
       {renderSavedPlants()}
     </div>
   );
