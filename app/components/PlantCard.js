@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { FaCheckCircle } from 'react-icons/fa';
+import { motion } from 'framer-motion';
 
 export default function PlantCard({ plant, onClick, showCheck = false, checked = false, onCheck }) {
   const { scientificName, family, imageUrl } = plant;
@@ -13,8 +14,14 @@ export default function PlantCard({ plant, onClick, showCheck = false, checked =
     } catch {}
   }
   return (
-    <div
-      className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-200 hover:scale-105 hover:shadow-xl cursor-pointer relative"
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 30 }}
+      transition={{ duration: 0.5, type: 'spring', bounce: 0.2 }}
+      whileHover={{ scale: 1.05, boxShadow: '0 8px 28px 0 rgba(0,0,0,0.13)' }}
+      whileTap={{ scale: 0.97 }}
+      className="bg-white rounded-lg shadow-md overflow-hidden relative transition-shadow duration-200 cursor-pointer"
       onClick={onClick}
     >
       {showCheck && (
@@ -57,6 +64,6 @@ export default function PlantCard({ plant, onClick, showCheck = false, checked =
           <p>Familia: {family || 'No especificada'}</p>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 } 

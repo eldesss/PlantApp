@@ -66,26 +66,16 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100">
       <main className="container mx-auto px-4 py-8">
-        <motion.h1
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          className="text-4xl font-bold text-green-800 mb-6 text-center font-display font-leafy"
-        >
+        <h1 className="text-4xl font-bold text-green-800 mb-6 text-center font-display font-leafy">
           Mis Plantas
-        </motion.h1>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className="flex justify-center mb-8"
-        >
+        </h1>
+        <div className="flex justify-center mb-8">
           <SearchBar
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por nombre científico o familia..."
           />
-        </motion.div>
+        </div>
         {loading ? (
           <div className="flex justify-center items-center h-full mt-64">
             <DotLoader color="#16a34a" size={60} />
@@ -118,11 +108,10 @@ export default function Home() {
                 <motion.div
                   key={plant.id || index}
                   variants={{
-                    hidden: { opacity: 0, scale: 0.95, y: 30 },
-                    show: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.5 } }
+                    hidden: { opacity: 0, y: 30 },
+                    show: { opacity: 1, y: 0, transition: { duration: 0.5, type: 'spring', bounce: 0.2 } }
                   }}
-                  whileHover={{ scale: 1.07, boxShadow: '0 8px 32px 0 rgba(34,197,94,0.10)' }}
-                  className="max-w-sm w-full mx-auto transition-all duration-300"
+                  className="max-w-sm w-full mx-auto"
                 >
                   <PlantCard
                     plant={{
@@ -163,7 +152,6 @@ export default function Home() {
                 });
                 if (res.ok) {
                   setPlants(plants.filter(p => p.id !== selectedPlant.id));
-                  // Actualizar checkedPlants si la planta eliminada estaba seleccionada
                   if (checkedPlants.some(plant => plant.id === selectedPlant.id)) {
                     const newCheckedPlants = checkedPlants.filter(plant => plant.id !== selectedPlant.id);
                     setCheckedPlants(newCheckedPlants);

@@ -120,11 +120,10 @@ export default function UsuarioDetallePage() {
                 <motion.div
                   key={planta.id || idx}
                   variants={{
-                    hidden: { opacity: 0, scale: 0.95, y: 30 },
-                    show: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.5 } }
+                    hidden: { opacity: 0, y: 30 },
+                    show: { opacity: 1, y: 0, transition: { duration: 0.5, type: 'spring', bounce: 0.2 } }
                   }}
-                  whileHover={{ scale: 1.07, boxShadow: '0 8px 32px 0 rgba(34,197,94,0.10)' }}
-                  className="max-w-sm w-full mx-auto transition-all duration-300"
+                  className="max-w-sm w-full mx-auto"
                 >
                   <PlantCard
                     plant={{
