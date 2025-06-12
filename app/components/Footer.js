@@ -1,14 +1,12 @@
 'use client';
-import { usePathname } from 'next/navigation';
-import NavBar from './Header';
+import { usePathname } from "next/navigation";
 
-export default function LayoutClient({ children }) {
-  
+const Footer = () => { 
+  const pathname = usePathname();
+  const hideHeader = pathname === '/';
 
   return (
     <>
-      
-      {children}
       {!hideHeader && (
         <footer className="bg-green-600 text-white p-4 mt-auto">
           <div className="container mx-auto text-center">
@@ -17,5 +15,7 @@ export default function LayoutClient({ children }) {
         </footer>
       )}
     </>
-  );
-} 
+  )
+}
+
+export default Footer;

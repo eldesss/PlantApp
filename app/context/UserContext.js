@@ -13,7 +13,7 @@ export function UserProvider({ children }) {
     if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
-      } catch {}
+      } catch {console.log('Error al cargar el usuario')}
     }
     setLoading(false);
   }, []);

@@ -1,7 +1,6 @@
 'use client';
-import { useState } from 'react';
 import Link from 'next/link';
-import { FaLeaf, FaSearch, FaBook, FaSeedling, FaCamera, FaFolderOpen, FaMap, FaGlobeAmericas } from 'react-icons/fa';
+import { FaSearch, FaBook, FaSeedling, FaCamera, FaFolderOpen, FaMap, FaGlobeAmericas } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 
 const staggerContainer = {
@@ -18,7 +17,6 @@ const fadeInUp = {
 };
 
 export default function LandingPage() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100">
