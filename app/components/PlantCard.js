@@ -46,7 +46,13 @@ export default function PlantCard({ plant, onClick, showCheck = false, checked =
         )}
       </div>
       <div className="p-4">
-        <h3 className="font-semibold text-lg text-gray-800 mb-1 font-display">{scientificName}</h3>
+        <h3
+          className="font-semibold text-lg text-gray-800 mb-1 font-display truncate max-h-[48px] leading-tight"
+          style={{ lineHeight: '1.1', fontSize: scientificName.length > 22 ? '1rem' : '1.125rem' }}
+          title={scientificName}
+        >
+          {scientificName}
+        </h3>
         <div className="mt-2 text-sm text-gray-500 font-sans">
           <p>Familia: {family || 'No especificada'}</p>
         </div>
