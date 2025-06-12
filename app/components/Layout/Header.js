@@ -1,7 +1,7 @@
 'use client';
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { useUser } from "../context/UserContext";
+import { useUser } from "../../context/UserContext";
 import Link from "next/link";
 import { FaLeaf, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa';
 
